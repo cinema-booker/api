@@ -3,8 +3,10 @@ package migrator
 import (
 	"database/sql"
 	"fmt"
+	"io"
 	"os"
 	"path"
+	"strings"
 	"time"
 )
 
@@ -63,6 +65,112 @@ func (m *Migrator) CreateMigration(migrationName string) error {
 		return fmt.Errorf("error creating down migration file: %v", err)
 	}
 	defer downFile.Close()
+
+	return nil
+}
+
+func (m *Migrator) MigrateUp(step int) error {
+	// start migration transaction
+	tx, err := m.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// create the migrations table if it does not exist
+	if _, err := tx.Exec("CREATE TABLE IF NOT EXISTS migrations (version varchar(17))"); err != nil {
+		return err
+	}
+
+	// get the current version from the database
+	var version sql.NullString
+	if err := tx.QueryRow("SELECT version FROM migrations LIMIT 1").Scan(&version); err != nil {
+		if err == sql.ErrNoRows {
+			if _, err := tx.Exec("INSERT INTO migrations (version) VALUES (NULL)"); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	// get migration files (sorted alphabetically by default)
+	files, err := os.ReadDir(m.dir)
+	if err != nil {
+		return err
+	}
+
+	// check if the migration files are corrupted
+	if version.Valid {
+		isCorrupted := true
+		for _, file := range files {
+			if !file.IsDir() && strings.HasPrefix(file.Name(), version.String) {
+				isCorrupted = false
+				break
+			}
+		}
+		if isCorrupted {
+			return fmt.Errorf("migration files are corrupted")
+		}
+	}
+
+	// get the migration files to apply
+	var migrations []string
+	for i := 0; i <= len(files)-1; i++ {
+		file := files[i]
+		if file.IsDir() {
+			continue
+		}
+		if strings.HasSuffix(file.Name(), ".up.sql") {
+			if !version.Valid {
+				migrations = append(migrations, file.Name())
+			} else if version.Valid && !strings.HasPrefix(file.Name(), version.String) && file.Name() > version.String {
+				migrations = append(migrations, file.Name())
+			}
+			if len(migrations) == step {
+				break
+			}
+		}
+	}
+	if len(migrations) == 0 {
+		return fmt.Errorf("no migration files to apply")
+	}
+
+	// execute the migration files sql queries
+	for _, migration := range migrations {
+		// get the migration file
+		migrationPath := path.Join(m.dir, migration)
+		migrationFile, err := os.Open(migrationPath)
+		if err != nil {
+			return err
+		}
+		defer migrationFile.Close()
+		// read the migration file content
+		data, err := io.ReadAll(migrationFile)
+		if err != nil {
+			return err
+		}
+		// execute the migration file content
+		if _, err = tx.Exec(string(data)); err != nil {
+			return err
+		}
+		// TODO: use logger
+		fmt.Printf("Applied migration: %s\n", migration)
+	}
+
+	// get the new version after applying the migrations
+	fileName := migrations[len(migrations)-1]
+	parts := strings.Split(fileName, "_")
+	newVersion := strings.Join(parts[:4], "_")
+
+	// save the new version in the database
+	if _, err := tx.Exec("UPDATE migrations SET version = $1", newVersion); err != nil {
+		return err
+	}
+
+	// commit the migration transaction
+	if err = tx.Commit(); err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -64,7 +64,9 @@ func main() {
 				log.Fatalf("invalid step value: %v", args[1])
 			}
 		}
-		fmt.Println("migrate up with step", step)
+		if err := m.MigrateUp(step); err != nil {
+			log.Fatalf("error migrating up: %v", err)
+		}
 	case "down":
 		if len(args) > 2 {
 			log.Fatal("too many arguments")
