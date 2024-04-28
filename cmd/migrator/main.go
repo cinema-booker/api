@@ -5,9 +5,37 @@ import (
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/cinema-booker/api/config"
+	"github.com/cinema-booker/api/pkg/migrator"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// load environment variables
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("❌ Error loading .env file : %v", err)
+	}
+
+	// connect to the database
+	db, err := config.NewDatabase(config.DatabaseConfig{
+		Host:     os.Getenv("DB_HOST"),
+		Port:     os.Getenv("DB_PORT"),
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		Name:     os.Getenv("DB_NAME"),
+	})
+	if err != nil {
+		log.Fatalf("❌ Error connecting to the database : %v", err)
+	}
+	defer db.Close()
+
+	// create a migrator instance
+	m, err := migrator.NewMigrator(db, "/migrations")
+	if err != nil {
+		log.Fatalf("❌ Error creating migrator : %v", err)
+	}
+
 	args := os.Args[1:]
 	if len(args) < 1 {
 		log.Fatal("no command provided")
@@ -21,7 +49,9 @@ func main() {
 		if len(args) < 2 {
 			log.Fatal("no migration name provided")
 		}
-		fmt.Println("Migrate create with name", args[1])
+		if err := m.CreateMigration(args[1]); err != nil {
+			log.Fatalf("error creating migration: %v", err)
+		}
 	case "up":
 		if len(args) > 2 {
 			log.Fatal("too many arguments")
@@ -34,7 +64,7 @@ func main() {
 				log.Fatalf("invalid step value: %v", args[1])
 			}
 		}
-		fmt.Println("Migrate up with step", step)
+		fmt.Println("migrate up with step", step)
 	case "down":
 		if len(args) > 2 {
 			log.Fatal("too many arguments")
@@ -47,7 +77,7 @@ func main() {
 				log.Fatalf("invalid step value: %v", args[1])
 			}
 		}
-		fmt.Println("Migrate down with step", step)
+		fmt.Println("migrate down with step", step)
 	default:
 		log.Fatal("unknown command")
 	}
