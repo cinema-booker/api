@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -79,7 +78,9 @@ func main() {
 				log.Fatalf("invalid step value: %v", args[1])
 			}
 		}
-		fmt.Println("migrate down with step", step)
+		if err := m.MigrateDown(step); err != nil {
+			log.Fatalf("error migrating down: %v", err)
+		}
 	default:
 		log.Fatal("unknown command")
 	}
