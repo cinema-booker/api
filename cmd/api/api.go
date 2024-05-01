@@ -1,19 +1,19 @@
 package api
 
 import (
-	"database/sql"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/jmoiron/sqlx"
 )
 
 type APIServer struct {
 	address string
-	db      *sql.DB
+	db      *sqlx.DB
 }
 
-func NewAPIServer(address string, db *sql.DB) *APIServer {
+func NewAPIServer(address string, db *sqlx.DB) *APIServer {
 	return &APIServer{
 		address: address,
 		db:      db,
