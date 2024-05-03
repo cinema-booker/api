@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/cinema-booker/api/api/handler"
+	"github.com/cinema-booker/api/internal/user"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 )
@@ -27,6 +29,11 @@ func (s *APIServer) Start() error {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	}).Methods("GET")
+
+	userStore := user.NewStore(s.db)
+	userService := user.NewService(userStore)
+	userHandler := handler.NewUserHandler(userService)
+	userHandler.RegisterRoutes(router)
 
 	log.Printf("🚀 Starting server on %s", s.address)
 	return http.ListenAndServe(s.address, router)

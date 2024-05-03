@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/cinema-booker/api/cmd/api"
+	"github.com/cinema-booker/api/api"
 	"github.com/cinema-booker/api/config"
 	"github.com/joho/godotenv"
 )
