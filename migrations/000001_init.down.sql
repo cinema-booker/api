@@ -16,8 +16,6 @@ DROP TABLE IF EXISTS "cinemas";
 
 -- Table: user
 DROP TABLE IF EXISTS "users";
-DROP TYPE IF EXISTS users_account_type_enum;
-DROP TYPE IF EXISTS users_status_enum;
 DROP TYPE IF EXISTS users_role_enum;
 
 -- Table: address

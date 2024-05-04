@@ -19,9 +19,8 @@ func (f ErrorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := f(w, r); err != nil {
 		if e, ok := err.(HTTPError); ok {
 			http.Error(w, e.Error(), e.Code)
-			return
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
 }
