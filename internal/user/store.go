@@ -7,17 +7,6 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type User struct {
-	Id          int    `json:"id"`
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	Role        string `json:"role"`
-	Status      string `json:"status"`
-	AccountType string `json:"account_type"`
-}
-
 type UserStore interface {
 	FindAll() ([]User, error)
 	FindById(id int) (User, error)

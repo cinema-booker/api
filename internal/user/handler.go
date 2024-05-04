@@ -1,26 +1,25 @@
-package handler
+package user
 
 import (
 	"database/sql"
-	"encoding/json"
 	"net/http"
 	"strconv"
 
-	"github.com/cinema-booker/api/internal/user"
+	"github.com/cinema-booker/api/internal/utils"
 	"github.com/gorilla/mux"
 )
 
-type UserHandler struct {
-	service user.UserService
+type Handler struct {
+	service UserService
 }
 
-func NewUserHandler(service user.UserService) *UserHandler {
-	return &UserHandler{
+func NewHandler(service UserService) *Handler {
+	return &Handler{
 		service: service,
 	}
 }
 
-func (h *UserHandler) RegisterRoutes(mux *mux.Router) {
+func (h *Handler) RegisterRoutes(mux *mux.Router) {
 	mux.HandleFunc("/users", h.GetAll).Methods(http.MethodGet)
 	mux.HandleFunc("/users/{id}", h.Get).Methods(http.MethodGet)
 	mux.HandleFunc("/users", h.Create).Methods(http.MethodPost)
@@ -28,17 +27,20 @@ func (h *UserHandler) RegisterRoutes(mux *mux.Router) {
 	mux.HandleFunc("/users/{id}", h.Delete).Methods(http.MethodDelete)
 }
 
-func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 	users, err := h.service.GetAll()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(users)
+	if err := utils.WriteJSON(w, http.StatusOK, users); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
-func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -56,12 +58,15 @@ func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(user)
+	if err := utils.WriteJSON(w, http.StatusOK, user); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
-func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var input map[string]interface{}
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+	if err := utils.ParseJSON(r, &input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -71,10 +76,13 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	if err := utils.WriteJSON(w, http.StatusCreated, nil); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
-func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -83,7 +91,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var input map[string]interface{}
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+	if err := utils.ParseJSON(r, &input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -93,10 +101,13 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusAccepted)
+	if err := utils.WriteJSON(w, http.StatusAccepted, nil); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
-func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -109,5 +120,8 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	if err := utils.WriteJSON(w, http.StatusNoContent, nil); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

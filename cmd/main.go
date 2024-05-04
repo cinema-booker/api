@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/cinema-booker/api/api"
-	"github.com/cinema-booker/api/config"
+	"github.com/cinema-booker/api/cmd/api"
+	"github.com/cinema-booker/api/third_party/database"
 	"github.com/joho/godotenv"
 )
 
@@ -17,7 +17,7 @@ func main() {
 	}
 
 	// connect to the database
-	db, err := config.NewDatabase(config.DatabaseConfig{
+	db, err := database.NewPostgres(database.PostgresConfig{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),
 		User:     os.Getenv("DB_USER"),

@@ -1,4 +1,4 @@
-package config
+package database
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type DatabaseConfig struct {
+type PostgresConfig struct {
 	Host     string
 	Port     string
 	User     string
@@ -16,7 +16,7 @@ type DatabaseConfig struct {
 	Name     string
 }
 
-func NewDatabase(config DatabaseConfig) (*sqlx.DB, error) {
+func NewPostgres(config PostgresConfig) (*sqlx.DB, error) {
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=require",
 		config.Host, config.Port, config.User, config.Password, config.Name,

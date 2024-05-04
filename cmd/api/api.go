@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/cinema-booker/api/api/handler"
 	"github.com/cinema-booker/api/internal/user"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
@@ -32,7 +31,7 @@ func (s *APIServer) Start() error {
 
 	userStore := user.NewStore(s.db)
 	userService := user.NewService(userStore)
-	userHandler := handler.NewUserHandler(userService)
+	userHandler := user.NewHandler(userService)
 	userHandler.RegisterRoutes(router)
 
 	log.Printf("🚀 Starting server on %s", s.address)
