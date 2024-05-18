@@ -13,7 +13,6 @@ type UserStore interface {
 	FindByEmail(email string) (User, error)
 	Create(input map[string]interface{}) error
 	Update(id int, input map[string]interface{}) error
-	Delete(id int) error
 }
 
 type Store struct {
@@ -76,13 +75,6 @@ func (s *Store) Update(id int, input map[string]interface{}) error {
 
 	query := fmt.Sprintf("UPDATE users SET %s WHERE id=$%d", strings.Join(columns, ", "), len(columns)+1)
 	_, err := s.db.Exec(query, append(values, id)...)
-
-	return err
-}
-
-func (s *Store) Delete(id int) error {
-	query := "DELETE FROM users WHERE id=$1"
-	_, err := s.db.Exec(query, id)
 
 	return err
 }

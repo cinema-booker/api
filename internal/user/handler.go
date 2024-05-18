@@ -25,6 +25,8 @@ func (h *Handler) RegisterRoutes(mux *mux.Router) {
 	mux.Handle("/users", utils.ErrorHandler(h.Create)).Methods(http.MethodPost)
 	mux.Handle("/users/{id}", utils.ErrorHandler(h.Update)).Methods(http.MethodPatch)
 	mux.Handle("/users/{id}", utils.ErrorHandler(h.Delete)).Methods(http.MethodDelete)
+	mux.Handle("/sign-up", utils.ErrorHandler(h.SignUp)).Methods(http.MethodPost)
+	mux.Handle("/sign-in", utils.ErrorHandler(h.SignIn)).Methods(http.MethodPost)
 }
 
 func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) error {
@@ -159,6 +161,59 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if err := utils.WriteJSON(w, http.StatusNoContent, nil); err != nil {
+		return utils.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	return nil
+}
+
+func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) error {
+	var input map[string]interface{}
+	if err := utils.ParseJSON(r, &input); err != nil {
+		return utils.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	if err := h.service.SignUp(input); err != nil {
+		return utils.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	if err := utils.WriteJSON(w, http.StatusCreated, nil); err != nil {
+		return utils.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	return nil
+}
+
+func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) error {
+	var input map[string]interface{}
+	if err := utils.ParseJSON(r, &input); err != nil {
+		return utils.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	token, err := h.service.SignIn(input)
+	if err != nil {
+		return utils.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	if err := utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token}); err != nil {
 		return utils.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
