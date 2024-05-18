@@ -17,7 +17,8 @@ run: clean build
 
 # install all dependencies
 install:
-	go get -u ./...
+	@go get -u ./...
+	@go mod tidy
 
 # run the tests
 test:

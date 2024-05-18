@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/cinema-booker/api/cmd/api"
-	"github.com/cinema-booker/api/third_party/database"
+	"github.com/cinema-booker/api"
+	"github.com/cinema-booker/third_party/database"
 	"github.com/joho/godotenv"
 )
 
@@ -29,7 +29,7 @@ func main() {
 	}
 	defer db.Close()
 
-	// create & run an API server
+	// create & run the API server
 	address := fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
 	server := api.NewAPIServer(address, db)
 	if err := server.Start(); err != nil {

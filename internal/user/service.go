@@ -1,11 +1,13 @@
 package user
 
 import (
-	"errors"
+	"fmt"
+	"os"
+	"strconv"
 	"time"
 
-	"github.com/cinema-booker/api/internal/auth/jwt"
-	"github.com/cinema-booker/api/internal/auth/password"
+	"github.com/cinema-booker/pkg/jwt"
+	"github.com/cinema-booker/pkg/password"
 )
 
 type UserService interface {
@@ -51,7 +53,7 @@ func (s *Service) Delete(id int) error {
 	}
 
 	if user.DeletedAt.Valid {
-		return errors.New("user already deleted")
+		return fmt.Errorf("user already deleted")
 	}
 
 	return s.store.Update(id, map[string]interface{}{
@@ -66,6 +68,11 @@ func (s *Service) SignUp(input map[string]interface{}) error {
 	// email must be a valid email address
 	// password must be at least 8 characters long
 	// first_name and last_name must be at least 2 characters long
+
+	_, err := s.store.FindByEmail(input["email"].(string))
+	if err == nil {
+		return fmt.Errorf("email already exists")
+	}
 
 	hashedPassword, err := password.Hash(input["password"].(string))
 	if err != nil {
@@ -88,10 +95,15 @@ func (s *Service) SignIn(input map[string]interface{}) (string, error) {
 	}
 
 	if !password.Compare(user.Password, input["password"].(string)) {
-		return "", errors.New("invalid password")
+		return "", fmt.Errorf("invalid credentials")
 	}
 
-	token, err := jwt.Create("secret", 3600*24*7, map[string]interface{}{
+	expiresIn, err := strconv.Atoi(os.Getenv("JWT_EXPIRES_IN"))
+	if err != nil {
+		return "", err
+	}
+
+	token, err := jwt.Create(os.Getenv("JWT_SECRET"), expiresIn, map[string]interface{}{
 		"id": user.Id,
 	})
 	if err != nil {
