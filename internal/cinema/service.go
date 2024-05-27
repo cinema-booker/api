@@ -11,6 +11,7 @@ type CinemaService interface {
 	Create(input map[string]interface{}) error
 	Update(id int, input map[string]interface{}) error
 	Delete(id int) error
+	Restore(id int) error
 }
 
 type Service struct {
@@ -51,5 +52,20 @@ func (s *Service) Delete(id int) error {
 
 	return s.store.Update(id, map[string]interface{}{
 		"deleted_at": time.Now(),
+	})
+}
+
+func (s *Service) Restore(id int) error {
+	cinema, err := s.store.FindById(id)
+	if err != nil {
+		return err
+	}
+
+	if !cinema.DeletedAt.Valid {
+		return fmt.Errorf("cinema already active")
+	}
+
+	return s.store.Update(id, map[string]interface{}{
+		"deleted_at": nil,
 	})
 }

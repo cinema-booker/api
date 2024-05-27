@@ -27,6 +27,8 @@ func (h *CinemaHandler) RegisterRoutes(mux *mux.Router) {
 	mux.Handle("/cinemas", errors.ErrorHandler(h.Create)).Methods(http.MethodPost)
 	mux.Handle("/cinemas/{id}", errors.ErrorHandler(h.Update)).Methods(http.MethodPatch)
 	mux.Handle("/cinemas/{id}", errors.ErrorHandler(h.Delete)).Methods(http.MethodDelete)
+	mux.Handle("/cinemas/{id}/restore", errors.ErrorHandler(h.Restore)).Methods(http.MethodPatch)
+
 	// TODO: Add routes for rooms
 	// mux.Handle("/cinemas/{id}/rooms", errors.ErrorHandler(h.CreateRoom)).Methods(http.MethodPost)
 	// mux.Handle("/cinemas/{id}/rooms/{roomId}", errors.ErrorHandler(h.UpdateRoom)).Methods(http.MethodPatch)
@@ -158,6 +160,33 @@ func (h *CinemaHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if err := h.service.Delete(id); err != nil {
+		return errors.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	if err := json.Write(w, http.StatusNoContent, nil); err != nil {
+		return errors.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	return nil
+}
+
+func (h *CinemaHandler) Restore(w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return errors.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	if err := h.service.Restore(id); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,

@@ -16,6 +16,8 @@ type UserService interface {
 	Create(input map[string]interface{}) error
 	Update(id int, input map[string]interface{}) error
 	Delete(id int) error
+	Restore(id int) error
+
 	SignUp(input map[string]interface{}) error
 	SignIn(input map[string]interface{}) (string, error)
 }
@@ -58,6 +60,21 @@ func (s *Service) Delete(id int) error {
 
 	return s.store.Update(id, map[string]interface{}{
 		"deleted_at": time.Now(),
+	})
+}
+
+func (s *Service) Restore(id int) error {
+	user, err := s.store.FindById(id)
+	if err != nil {
+		return err
+	}
+
+	if !user.DeletedAt.Valid {
+		return fmt.Errorf("user already active")
+	}
+
+	return s.store.Update(id, map[string]interface{}{
+		"deleted_at": nil,
 	})
 }
 
