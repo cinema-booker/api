@@ -31,7 +31,8 @@ CREATE TABLE "cinemas" (
   "address_id" INTEGER NOT NULL REFERENCES "addresses"("id"),
   "name" VARCHAR(255) NOT NULL,
   "description" TEXT DEFAULT '',
-  "images" TEXT[] DEFAULT '{}'
+  "deleted_at" TIMESTAMP
+  --"images" TEXT[] DEFAULT '{}'
 );
 
 -- Table: users_cinemas
