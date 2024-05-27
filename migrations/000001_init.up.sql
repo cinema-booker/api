@@ -64,7 +64,8 @@ CREATE TABLE "events" (
   "movie_id" INTEGER NOT NULL,
   "price" INTEGER NOT NULL DEFAULT 0,
   "starts_at" TIMESTAMP NOT NULL,
-  "ends_at" TIMESTAMP NOT NULL
+  "ends_at" TIMESTAMP NOT NULL,
+  "deleted_at" TIMESTAMP
 );
 
 -- Table: bookings
@@ -74,5 +75,6 @@ CREATE TABLE "bookings" (
   "user_id" INTEGER NOT NULL REFERENCES "users"("id"),
   "event_id" INTEGER NOT NULL REFERENCES "events"("id"),
   "place" VARCHAR(255) NOT NULL,
+  "canceled_at" TIMESTAMP,
   UNIQUE ("user_id", "event_id", "place")
 );

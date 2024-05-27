@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/cinema-booker/pkg/hasher"
 	"github.com/cinema-booker/pkg/jwt"
-	"github.com/cinema-booker/pkg/password"
 )
 
 type UserService interface {
@@ -74,7 +74,7 @@ func (s *Service) SignUp(input map[string]interface{}) error {
 		return fmt.Errorf("email already exists")
 	}
 
-	hashedPassword, err := password.Hash(input["password"].(string))
+	hashedPassword, err := hasher.Hash(input["password"].(string))
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func (s *Service) SignIn(input map[string]interface{}) (string, error) {
 		return "", err
 	}
 
-	if !password.Compare(user.Password, input["password"].(string)) {
+	if !hasher.Compare(user.Password, input["password"].(string)) {
 		return "", fmt.Errorf("invalid credentials")
 	}
 
