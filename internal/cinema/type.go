@@ -2,6 +2,9 @@ package cinema
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"encoding/json"
+	"fmt"
 )
 
 const (
@@ -32,4 +35,26 @@ type Cinema struct {
 	Description string       `json:"description" db:"description"`
 	DeletedAt   sql.NullTime `json:"deleted_at" db:"deleted_at"`
 	Address     Address      `json:"address"`
+}
+
+type CinemaWithRooms struct {
+	Id          int          `json:"id" db:"id"`
+	Name        string       `json:"name" db:"name"`
+	Description string       `json:"description" db:"description"`
+	DeletedAt   sql.NullTime `json:"deleted_at" db:"deleted_at"`
+	Address     Address      `json:"address"`
+	Rooms       RoomArray    `json:"rooms"`
+}
+
+type RoomArray []Room
+
+func (r *RoomArray) Scan(src interface{}) error {
+	if data, ok := src.([]byte); ok {
+		return json.Unmarshal(data, r)
+	}
+	return fmt.Errorf("unsupported data type: %T", src)
+}
+
+func (r RoomArray) Value() (driver.Value, error) {
+	return json.Marshal(r)
 }
