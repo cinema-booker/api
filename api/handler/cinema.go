@@ -28,11 +28,6 @@ func (h *CinemaHandler) RegisterRoutes(mux *mux.Router) {
 	mux.Handle("/cinemas/{id}", errors.ErrorHandler(h.Update)).Methods(http.MethodPatch)
 	mux.Handle("/cinemas/{id}", errors.ErrorHandler(h.Delete)).Methods(http.MethodDelete)
 	mux.Handle("/cinemas/{id}/restore", errors.ErrorHandler(h.Restore)).Methods(http.MethodPatch)
-
-	// TODO: Add routes for rooms
-	// mux.Handle("/cinemas/{id}/rooms", errors.ErrorHandler(h.CreateRoom)).Methods(http.MethodPost)
-	// mux.Handle("/cinemas/{id}/rooms/{roomId}", errors.ErrorHandler(h.UpdateRoom)).Methods(http.MethodPatch)
-	// mux.Handle("/cinemas/{id}/rooms/{roomId}", errors.ErrorHandler(h.DeleteRoom)).Methods(http.MethodDelete)
 }
 
 func (h *CinemaHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
