@@ -1,10 +1,10 @@
 package cinema
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
-	"time"
 )
 
 const (
@@ -30,20 +30,20 @@ type Room struct {
 }
 
 type Cinema struct {
-	Id          int        `json:"id" db:"id"`
-	Name        string     `json:"name" db:"name"`
-	Description string     `json:"description" db:"description"`
-	DeletedAt   *time.Time `json:"deleted_at" db:"deleted_at"`
-	Address     Address    `json:"address"`
+	Id          int          `json:"id" db:"id"`
+	Name        string       `json:"name" db:"name"`
+	Description string       `json:"description" db:"description"`
+	DeletedAt   sql.NullTime `json:"deleted_at" db:"deleted_at"`
+	Address     Address      `json:"address"`
 }
 
 type CinemaWithRooms struct {
-	Id          int        `json:"id" db:"id"`
-	Name        string     `json:"name" db:"name"`
-	Description string     `json:"description" db:"description"`
-	DeletedAt   *time.Time `json:"deleted_at" db:"deleted_at"`
-	Address     Address    `json:"address"`
-	Rooms       RoomArray  `json:"rooms"`
+	Id          int          `json:"id" db:"id"`
+	Name        string       `json:"name" db:"name"`
+	Description string       `json:"description" db:"description"`
+	DeletedAt   sql.NullTime `json:"deleted_at" db:"deleted_at"`
+	Address     Address      `json:"address"`
+	Rooms       RoomArray    `json:"rooms"`
 }
 
 type RoomArray []Room

@@ -1,6 +1,7 @@
 package cinema
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -46,7 +47,10 @@ func (s *Service) Delete(id int) error {
 	}
 
 	return s.store.Update(id, map[string]interface{}{
-		"deleted_at": time.Now(),
+		"deleted_at": sql.NullTime{
+			Time:  time.Now(),
+			Valid: true,
+		},
 	})
 }
 
@@ -57,6 +61,9 @@ func (s *Service) Restore(id int) error {
 	}
 
 	return s.store.Update(id, map[string]interface{}{
-		"deleted_at": nil,
+		"deleted_at": sql.NullTime{
+			Time:  time.Time{},
+			Valid: false,
+		},
 	})
 }
