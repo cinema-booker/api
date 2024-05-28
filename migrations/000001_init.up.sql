@@ -64,8 +64,7 @@ CREATE TABLE "movies" (
   "description" TEXT DEFAULT '',
   "poster" TEXT NOT NULL,
   "backdrop" TEXT NOT NULL,
-  "language" VARCHAR(255) NOT NULL,
-  "released_at" VARCHAR(255) NOT NULL
+  "language" VARCHAR(255) NOT NULL
 );
 
 -- Table: events

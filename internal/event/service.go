@@ -2,7 +2,11 @@ package event
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 	"time"
+
+	"github.com/cinema-booker/third_party/tmdb"
 )
 
 type EventService interface {
@@ -33,7 +37,25 @@ func (s *Service) Get(id int) (Event, error) {
 }
 
 func (s *Service) Create(input map[string]interface{}) error {
+	movieIdFloat64, ok := input["movie_id"].(float64)
+	if !ok {
+		return fmt.Errorf("invalid type for movie_id")
+	}
+	movieId := int(movieIdFloat64)
+
+	tmdbService := tmdb.NewTMDBService(os.Getenv("TMDB_API_KEY"))
+	movie, err := tmdbService.GetMovieById(movieId)
+	if err != nil {
+		return err
+	}
+	input["movie"] = movie
+
 	return s.store.Create(input)
+
+	// movies, err := tmdbService.SearchMovies("Sopranos")
+	// if err != nil {
+	// 	return err
+	// }
 }
 
 func (s *Service) Update(id int, input map[string]interface{}) error {
