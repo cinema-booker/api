@@ -49,13 +49,9 @@ func (s *Service) Update(id int, input map[string]interface{}) error {
 }
 
 func (s *Service) Delete(id int) error {
-	user, err := s.store.FindById(id)
+	_, err := s.store.FindById(id)
 	if err != nil {
 		return err
-	}
-
-	if user.DeletedAt.Valid {
-		return fmt.Errorf("user already deleted")
 	}
 
 	return s.store.Update(id, map[string]interface{}{
@@ -64,13 +60,9 @@ func (s *Service) Delete(id int) error {
 }
 
 func (s *Service) Restore(id int) error {
-	user, err := s.store.FindById(id)
+	_, err := s.store.FindById(id)
 	if err != nil {
 		return err
-	}
-
-	if !user.DeletedAt.Valid {
-		return fmt.Errorf("user already active")
 	}
 
 	return s.store.Update(id, map[string]interface{}{

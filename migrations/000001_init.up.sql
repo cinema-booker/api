@@ -61,7 +61,7 @@ CREATE TABLE "rooms" (
 CREATE TABLE "events" (
   "id" SERIAL PRIMARY KEY,
   "room_id" INTEGER NOT NULL REFERENCES "rooms"("id"),
-  "movie_id" INTEGER NOT NULL,
+  -- "movie_id" INTEGER NOT NULL,
   "price" INTEGER NOT NULL DEFAULT 0,
   "starts_at" TIMESTAMP NOT NULL,
   "ends_at" TIMESTAMP NOT NULL,
