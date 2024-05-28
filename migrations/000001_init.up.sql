@@ -56,12 +56,24 @@ CREATE TABLE "rooms" (
   UNIQUE ("cinema_id", "number")
 );
 
--- Table: event
+-- Table: movies
+
+CREATE TABLE "movies" (
+  "id" SERIAL PRIMARY KEY,
+  "title" VARCHAR(255) NOT NULL,
+  "description" TEXT DEFAULT '',
+  "poster" TEXT NOT NULL,
+  "backdrop" TEXT NOT NULL,
+  "language" VARCHAR(255) NOT NULL,
+  "released_at" VARCHAR(255) NOT NULL
+);
+
+-- Table: events
 
 CREATE TABLE "events" (
   "id" SERIAL PRIMARY KEY,
   "room_id" INTEGER NOT NULL REFERENCES "rooms"("id"),
-  -- "movie_id" INTEGER NOT NULL,
+  "movie_id" INTEGER NOT NULL REFERENCES "movies"("id"),
   "price" INTEGER NOT NULL DEFAULT 0,
   "starts_at" TIMESTAMP NOT NULL,
   "ends_at" TIMESTAMP NOT NULL,
