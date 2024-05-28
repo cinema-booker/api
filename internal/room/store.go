@@ -26,7 +26,7 @@ func NewStore(db *sqlx.DB) *Store {
 
 func (s *Store) FindById(id int) (Room, error) {
 	room := Room{}
-	query := "SELECT * FROM rooms WHERE id=$1"
+	query := "SELECT id, number, type FROM rooms WHERE id=$1"
 	err := s.db.Get(&room, query, id)
 
 	return room, err
