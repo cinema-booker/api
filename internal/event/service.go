@@ -3,7 +3,6 @@ package event
 import (
 	"database/sql"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/cinema-booker/third_party/tmdb"
@@ -19,12 +18,14 @@ type EventService interface {
 }
 
 type Service struct {
-	store EventStore
+	store       EventStore
+	tmdbService *tmdb.TMDB
 }
 
-func NewService(store EventStore) *Service {
+func NewService(store EventStore, tmdbService *tmdb.TMDB) *Service {
 	return &Service{
-		store: store,
+		store:       store,
+		tmdbService: tmdbService,
 	}
 }
 
@@ -43,19 +44,13 @@ func (s *Service) Create(input map[string]interface{}) error {
 	}
 	movieId := int(movieIdFloat64)
 
-	tmdbService := tmdb.NewTMDBService(os.Getenv("TMDB_API_KEY"))
-	movie, err := tmdbService.GetMovieById(movieId)
+	movie, err := s.tmdbService.GetMovieById(movieId)
 	if err != nil {
 		return err
 	}
 	input["movie"] = movie
 
 	return s.store.Create(input)
-
-	// movies, err := tmdbService.SearchMovies("Sopranos")
-	// if err != nil {
-	// 	return err
-	// }
 }
 
 func (s *Service) Update(id int, input map[string]interface{}) error {
