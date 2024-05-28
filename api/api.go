@@ -6,6 +6,7 @@ import (
 
 	"github.com/cinema-booker/api/handler"
 	"github.com/cinema-booker/internal/cinema"
+	"github.com/cinema-booker/internal/event"
 	"github.com/cinema-booker/internal/room"
 	"github.com/cinema-booker/internal/user"
 	"github.com/gorilla/mux"
@@ -46,6 +47,11 @@ func (s *APIServer) Start() error {
 	roomService := room.NewService(roomStore)
 	roomHandler := handler.NewRoomHandler(roomService)
 	roomHandler.RegisterRoutes(router)
+
+	eventStore := event.NewStore(s.db)
+	eventService := event.NewService(eventStore)
+	eventHandler := handler.NewEventHandler(eventService)
+	eventHandler.RegisterRoutes(router)
 
 	log.Printf("🚀 Starting server on %s", s.address)
 	return http.ListenAndServe(s.address, router)
