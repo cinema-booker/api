@@ -72,7 +72,7 @@ func (s *Store) FindById(id int) (Event, error) {
     FROM events e
     LEFT JOIN rooms r ON e.room_id = r.id
     LEFT JOIN movies m ON e.movie_id = m.id
-		WHERE id=$1
+		WHERE e.id=$1
   `
 	err := s.db.Get(&event, query, id)
 
