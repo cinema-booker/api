@@ -1,98 +1,144 @@
 {
-    "clientName": "Thunder Client",
-    "collectionName": "cinema",
-    "collectionId": "eb1112a1-913f-49b0-978b-b8917adb630f",
-    "dateExported": "2024-05-28T10:40:27.861Z",
-    "version": "1.2",
-    "folders": [],
-    "requests": [
+    "info": {
+        "_postman_id": "b4e4358d-df43-4f22-8aab-f642a8f7000c",
+        "name": "cinema",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "description": ""
+    },
+    "item": [
         {
-            "_id": "1085eb13-0d92-4de6-834c-27b4f5f5f957",
-            "colId": "eb1112a1-913f-49b0-978b-b8917adb630f",
-            "containerId": "",
             "name": "get-all",
-            "url": "http://localhost:3000/cinemas",
-            "method": "GET",
-            "sortNum": 10000,
-            "created": "2024-05-28T09:14:58.503Z",
-            "modified": "2024-05-28T09:14:58.503Z",
-            "headers": []
-        },
-        {
-            "_id": "8714715d-325e-4084-a009-5e8332879fdd",
-            "colId": "eb1112a1-913f-49b0-978b-b8917adb630f",
-            "containerId": "",
-            "name": "get",
-            "url": "http://localhost:3000/cinemas/5",
-            "method": "GET",
-            "sortNum": 15000,
-            "created": "2024-05-28T09:26:53.438Z",
-            "modified": "2024-05-28T09:26:53.438Z",
-            "headers": [],
-            "body": {
-                "type": "json",
-                "raw": "{\n  \"address_country\": \"France\",\n  \"address_city\": \"Paris\",\n  \"address_zip_code\": \"75001\",\n  \"address_street\": \"123 Rue de Rivoli\",\n  \"address_longitude\": 2.3374,\n  \"address_latitude\": 48.8606,\n  \"name\": \"Cinéma Rivoli\",\n  \"description\": \"Un cinéma historique situé au cœur de Paris\",\n  \"user_id\": 2\n}\n",
-                "form": []
+            "request": {
+                "method": "GET",
+                "url": {
+                    "raw": "http://localhost:3000/cinemas",
+                    "path": [
+                        "cinemas"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                }
             }
         },
         {
-            "_id": "7bfc1c55-cf18-4a48-9cb9-24176f2f0372",
-            "colId": "eb1112a1-913f-49b0-978b-b8917adb630f",
-            "containerId": "",
             "name": "create",
-            "url": "http://localhost:3000/cinemas",
-            "method": "POST",
-            "sortNum": 20000,
-            "created": "2024-05-28T09:17:49.651Z",
-            "modified": "2024-05-28T10:04:25.552Z",
-            "headers": [],
-            "body": {
-                "type": "json",
-                "raw": "{\n  \"address_country\": \"France\",\n  \"address_city\": \"Biarritz\",\n  \"address_zip_code\": \"75001\",\n  \"address_street\": \"123 Rue de Rivoli\",\n  \"address_longitude\": 2.3374,\n  \"address_latitude\": 48.8606,\n  \"name\": \"Cinéma Rivol\",\n  \"description\": \"Un cinéma historique situé au cœur de Paris\",\n  \"user_id\": 1\n}\n",
-                "form": []
+            "request": {
+                "method": "POST",
+                "url": {
+                    "raw": "http://localhost:3000/cinemas",
+                    "path": [
+                        "cinemas"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                },
+                "body": {
+                    "mode": "raw",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    },
+                    "raw": "{\n  \"address_country\": \"France\",\n  \"address_city\": \"Biarritz\",\n  \"address_zip_code\": \"75001\",\n  \"address_street\": \"123 Rue de Rivoli\",\n  \"address_longitude\": 2.3374,\n  \"address_latitude\": 48.8606,\n  \"name\": \"Cinéma Rivol\",\n  \"description\": \"Un cinéma historique situé au cœur de Paris\",\n  \"user_id\": 1\n}\n"
+                }
             }
         },
         {
-            "_id": "c25539f6-3685-4032-b53d-719489558f02",
-            "colId": "eb1112a1-913f-49b0-978b-b8917adb630f",
-            "containerId": "",
+            "name": "get",
+            "request": {
+                "method": "GET",
+                "url": {
+                    "raw": "http://localhost:3000/cinemas/5",
+                    "path": [
+                        "cinemas",
+                        "5"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                },
+                "body": {
+                    "mode": "raw",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    },
+                    "raw": "{\n  \"address_country\": \"France\",\n  \"address_city\": \"Paris\",\n  \"address_zip_code\": \"75001\",\n  \"address_street\": \"123 Rue de Rivoli\",\n  \"address_longitude\": 2.3374,\n  \"address_latitude\": 48.8606,\n  \"name\": \"Cinéma Rivoli\",\n  \"description\": \"Un cinéma historique situé au cœur de Paris\",\n  \"user_id\": 2\n}\n"
+                }
+            }
+        },
+        {
             "name": "update",
-            "url": "http://localhost:3000/cinemas/5",
-            "method": "PATCH",
-            "sortNum": 30000,
-            "created": "2024-05-28T09:40:22.503Z",
-            "modified": "2024-05-28T09:40:22.503Z",
-            "headers": [],
-            "body": {
-                "type": "json",
-                "raw": "{\n  \"name\": \"Cinéma Rivolin\",\n  \"description\": \"Un cinéma historique situé au cœur de Paris\"\n}\n",
-                "form": []
+            "request": {
+                "method": "PATCH",
+                "url": {
+                    "raw": "http://localhost:3000/cinemas/5",
+                    "path": [
+                        "cinemas",
+                        "5"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                },
+                "body": {
+                    "mode": "raw",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    },
+                    "raw": "{\n  \"name\": \"Cinéma Rivolin\",\n  \"description\": \"Un cinéma historique situé au cœur de Paris\"\n}\n"
+                }
             }
         },
         {
-            "_id": "cb26755c-aeba-4e38-ac27-d6af045a3672",
-            "colId": "eb1112a1-913f-49b0-978b-b8917adb630f",
-            "containerId": "",
             "name": "delete",
-            "url": "http://localhost:3000/cinemas/7",
-            "method": "DELETE",
-            "sortNum": 40000,
-            "created": "2024-05-28T09:41:14.022Z",
-            "modified": "2024-05-28T10:04:42.277Z",
-            "headers": []
+            "request": {
+                "method": "DELETE",
+                "url": {
+                    "raw": "http://localhost:3000/cinemas/7",
+                    "path": [
+                        "cinemas",
+                        "7"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                }
+            }
         },
         {
-            "_id": "c1a94c82-7637-4e34-b72d-fbb1ccba1ba0",
-            "colId": "eb1112a1-913f-49b0-978b-b8917adb630f",
-            "containerId": "",
             "name": "restore",
-            "url": "http://localhost:3000/cinemas/6/restore",
-            "method": "PATCH",
-            "sortNum": 50000,
-            "created": "2024-05-28T09:48:15.771Z",
-            "modified": "2024-05-28T10:13:11.929Z",
-            "headers": []
+            "request": {
+                "method": "PATCH",
+                "url": {
+                    "raw": "http://localhost:3000/cinemas/6/restore",
+                    "path": [
+                        "cinemas",
+                        "6",
+                        "restore"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                }
+            }
         }
-    ],
-    "ref": "new_hP-tAWiWqr_d_6EdkNnGMh1OHzgiD1LEqibYLj_H6vKGCei9mXCdXChdXNBVpoez0SyA7DFtlLPxUVjTYg"
+    ]
 }

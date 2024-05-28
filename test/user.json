@@ -1,144 +1,213 @@
 {
-    "clientName": "Thunder Client",
-    "collectionName": "user",
-    "collectionId": "61ac6c99-e19d-4551-9e94-bbc28a01f8af",
-    "dateExported": "2024-05-28T08:50:16.453Z",
-    "version": "1.2",
-    "folders": [],
-    "requests": [
+    "info": {
+        "_postman_id": "d055c502-31cf-48d9-9514-168353aed8cf",
+        "name": "user",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "description": ""
+    },
+    "item": [
         {
-            "_id": "6dcc45c1-40c9-4e9d-9f3c-947212e92b19",
-            "colId": "61ac6c99-e19d-4551-9e94-bbc28a01f8af",
-            "containerId": "",
             "name": "get-all",
-            "url": "http://localhost:3000/users",
-            "method": "GET",
-            "sortNum": 10000,
-            "created": "2024-05-28T08:43:29.164Z",
-            "modified": "2024-05-28T08:43:29.164Z",
-            "headers": []
+            "request": {
+                "method": "GET",
+                "url": {
+                    "raw": "http://localhost:3000/users",
+                    "path": [
+                        "users"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                }
+            }
         },
         {
-            "_id": "90c26bd8-efc7-400d-a8c8-7a8ebe992234",
-            "colId": "61ac6c99-e19d-4551-9e94-bbc28a01f8af",
-            "containerId": "",
             "name": "get",
-            "url": "http://localhost:3000/users/1",
-            "method": "GET",
-            "sortNum": 20000,
-            "created": "2024-05-28T08:43:29.165Z",
-            "modified": "2024-05-28T08:43:29.165Z",
-            "headers": []
+            "request": {
+                "method": "GET",
+                "url": {
+                    "raw": "http://localhost:3000/users/1",
+                    "path": [
+                        "users",
+                        "1"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                }
+            }
         },
         {
-            "_id": "53b8b59d-49ed-48d5-bc02-39a594a665a4",
-            "colId": "61ac6c99-e19d-4551-9e94-bbc28a01f8af",
-            "containerId": "",
             "name": "create",
-            "url": "http://localhost:3000/users",
-            "method": "POST",
-            "sortNum": 30000,
-            "created": "2024-05-28T08:43:29.166Z",
-            "modified": "2024-05-28T08:43:29.166Z",
-            "headers": [],
-            "body": {
-                "type": "json",
-                "raw": "{\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"password\": \"anothersecurepassword456\",\n  \"role\": \"VIEWER\"\n}",
-                "form": []
+            "request": {
+                "method": "POST",
+                "url": {
+                    "raw": "http://localhost:3000/users",
+                    "path": [
+                        "users"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                },
+                "body": {
+                    "mode": "raw",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    },
+                    "raw": "{\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"password\": \"anothersecurepassword456\",\n  \"role\": \"VIEWER\"\n}"
+                }
             }
         },
         {
-            "_id": "28346e08-d5f5-4a57-a2db-dc45a775466d",
-            "colId": "61ac6c99-e19d-4551-9e94-bbc28a01f8af",
-            "containerId": "",
             "name": "update",
-            "url": "http://localhost:3000/users/2",
-            "method": "PATCH",
-            "sortNum": 40000,
-            "created": "2024-05-28T08:43:29.167Z",
-            "modified": "2024-05-28T08:43:29.167Z",
-            "headers": [],
-            "body": {
-                "type": "json",
-                "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Smith\",\n  \"email\": \"john.smith@example.com\",\n  \"password\": \"anothersecurepassword456\",\n  \"role\": \"VIEWER\"\n}",
-                "form": []
+            "request": {
+                "method": "PATCH",
+                "url": {
+                    "raw": "http://localhost:3000/users/2",
+                    "path": [
+                        "users",
+                        "2"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                },
+                "body": {
+                    "mode": "raw",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    },
+                    "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Smith\",\n  \"email\": \"john.smith@example.com\",\n  \"password\": \"anothersecurepassword456\",\n  \"role\": \"VIEWER\"\n}"
+                }
             }
         },
         {
-            "_id": "d47d4142-c31a-48e4-9f3d-36595618b72e",
-            "colId": "61ac6c99-e19d-4551-9e94-bbc28a01f8af",
-            "containerId": "",
             "name": "delete",
-            "url": "http://localhost:3000/users/2",
-            "method": "DELETE",
-            "sortNum": 50000,
-            "created": "2024-05-28T08:43:29.168Z",
-            "modified": "2024-05-28T08:43:29.168Z",
-            "headers": []
+            "request": {
+                "method": "DELETE",
+                "url": {
+                    "raw": "http://localhost:3000/users/2",
+                    "path": [
+                        "users",
+                        "2"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                }
+            }
         },
         {
-            "_id": "ff617776-5557-4f15-bf3d-dd73ea829b05",
-            "colId": "61ac6c99-e19d-4551-9e94-bbc28a01f8af",
-            "containerId": "",
             "name": "restore",
-            "url": "http://localhost:3000/users/2/restore",
-            "method": "PATCH",
-            "sortNum": 60000,
-            "created": "2024-05-28T08:43:54.504Z",
-            "modified": "2024-05-28T08:43:54.504Z",
-            "headers": []
+            "request": {
+                "method": "PATCH",
+                "url": {
+                    "raw": "http://localhost:3000/users/2/restore",
+                    "path": [
+                        "users",
+                        "2",
+                        "restore"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                }
+            }
         },
         {
-            "_id": "26afaef7-ed0d-40c8-8869-b6e80372b452",
-            "colId": "61ac6c99-e19d-4551-9e94-bbc28a01f8af",
-            "containerId": "",
             "name": "sign-up",
-            "url": "http://localhost:3000/sign-up",
-            "method": "POST",
-            "sortNum": 70000,
-            "created": "2024-05-28T08:45:33.252Z",
-            "modified": "2024-05-28T08:45:33.252Z",
-            "headers": [],
-            "body": {
-                "type": "json",
-                "raw": "{\n  \"first_name\": \"Joe\",\n  \"last_name\": \"Dalton\",\n  \"email\": \"joe.dalton@example.com\",\n  \"password\": \"securepassword123\",\n  \"role\": \"MANAGER\"\n}",
-                "form": []
+            "request": {
+                "method": "POST",
+                "url": {
+                    "raw": "http://localhost:3000/sign-up",
+                    "path": [
+                        "sign-up"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                },
+                "body": {
+                    "mode": "raw",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    },
+                    "raw": "{\n  \"first_name\": \"Joe\",\n  \"last_name\": \"Dalton\",\n  \"email\": \"joe.dalton@example.com\",\n  \"password\": \"securepassword123\",\n  \"role\": \"MANAGER\"\n}"
+                }
             }
         },
         {
-            "_id": "95cc2822-e7e7-41d1-b188-33d141ae46aa",
-            "colId": "61ac6c99-e19d-4551-9e94-bbc28a01f8af",
-            "containerId": "",
             "name": "sign-up admin",
-            "url": "http://localhost:3000/sign-up",
-            "method": "POST",
-            "sortNum": 80000,
-            "created": "2024-05-28T08:46:55.758Z",
-            "modified": "2024-05-28T08:46:55.758Z",
-            "headers": [],
-            "body": {
-                "type": "json",
-                "raw": "{\n  \"first_name\": \"Michael\",\n  \"last_name\": \"Myers\",\n  \"email\": \"halloween@example.com\",\n  \"password\": \"securepassword123\",\n  \"role\": \"ADMIN\"\n}",
-                "form": []
+            "request": {
+                "method": "POST",
+                "url": {
+                    "raw": "http://localhost:3000/sign-up",
+                    "path": [
+                        "sign-up"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                },
+                "body": {
+                    "mode": "raw",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    },
+                    "raw": "{\n  \"first_name\": \"Michael\",\n  \"last_name\": \"Myers\",\n  \"email\": \"halloween@example.com\",\n  \"password\": \"securepassword123\",\n  \"role\": \"ADMIN\"\n}"
+                }
             }
         },
         {
-            "_id": "85cd47be-14fa-4667-b221-c43ee97d6cba",
-            "colId": "61ac6c99-e19d-4551-9e94-bbc28a01f8af",
-            "containerId": "",
             "name": "sign-in",
-            "url": "http://localhost:3000/sign-in",
-            "method": "POST",
-            "sortNum": 90000,
-            "created": "2024-05-28T08:48:12.519Z",
-            "modified": "2024-05-28T08:48:12.519Z",
-            "headers": [],
-            "body": {
-                "type": "json",
-                "raw": "{\n  \"email\": \"joe.dalton@example.com\",\n  \"password\": \"securepassword123\"\n}",
-                "form": []
+            "request": {
+                "method": "POST",
+                "url": {
+                    "raw": "http://localhost:3000/sign-in",
+                    "path": [
+                        "sign-in"
+                    ],
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000"
+                },
+                "body": {
+                    "mode": "raw",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    },
+                    "raw": "{\n  \"email\": \"joe.dalton@example.com\",\n  \"password\": \"securepassword123\"\n}"
+                }
             }
         }
-    ],
-    "ref": "6o0Wz3oo1ylWQ34zxhfL0yqZAIUB4pbu4dvkoG0zamuEF-sdQOJ_iUIsVP3JFfcJo6bJ8ezXnXQErt_vGLPrUQ"
+    ]
 }
