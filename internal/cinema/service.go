@@ -1,7 +1,7 @@
 package cinema
 
 import (
-	"fmt"
+	"database/sql"
 	"time"
 )
 
@@ -41,31 +41,29 @@ func (s *Service) Update(id int, input map[string]interface{}) error {
 }
 
 func (s *Service) Delete(id int) error {
-	cinema, err := s.store.FindById(id)
+	_, err := s.store.FindById(id)
 	if err != nil {
 		return err
 	}
 
-	if cinema.DeletedAt.Valid {
-		return fmt.Errorf("cinema already deleted")
-	}
-
 	return s.store.Update(id, map[string]interface{}{
-		"deleted_at": time.Now(),
+		"deleted_at": sql.NullTime{
+			Time:  time.Now(),
+			Valid: true,
+		},
 	})
 }
 
 func (s *Service) Restore(id int) error {
-	cinema, err := s.store.FindById(id)
+	_, err := s.store.FindById(id)
 	if err != nil {
 		return err
 	}
 
-	if !cinema.DeletedAt.Valid {
-		return fmt.Errorf("cinema already active")
-	}
-
 	return s.store.Update(id, map[string]interface{}{
-		"deleted_at": nil,
+		"deleted_at": sql.NullTime{
+			Time:  time.Time{},
+			Valid: false,
+		},
 	})
 }
