@@ -71,13 +71,6 @@ func (s *Service) Restore(id int) error {
 }
 
 func (s *Service) SignUp(input map[string]interface{}) error {
-	// TODO: validate input
-	// required fields: first_name, last_name, email, password, role
-	// role : MANAGER, VIEWER
-	// email must be a valid email address
-	// password must be at least 8 characters long
-	// first_name and last_name must be at least 2 characters long
-
 	_, err := s.store.FindByEmail(input["email"].(string))
 	if err == nil {
 		return fmt.Errorf("email already exists")

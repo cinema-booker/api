@@ -1,213 +1,172 @@
 {
-    "info": {
-        "_postman_id": "d055c502-31cf-48d9-9514-168353aed8cf",
-        "name": "user",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-        "description": ""
-    },
-    "item": [
-        {
-            "name": "get-all",
-            "request": {
-                "method": "GET",
-                "url": {
-                    "raw": "http://localhost:3000/users",
-                    "path": [
-                        "users"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                }
-            }
-        },
-        {
-            "name": "get",
-            "request": {
-                "method": "GET",
-                "url": {
-                    "raw": "http://localhost:3000/users/1",
-                    "path": [
-                        "users",
-                        "1"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                }
-            }
-        },
-        {
-            "name": "create",
-            "request": {
-                "method": "POST",
-                "url": {
-                    "raw": "http://localhost:3000/users",
-                    "path": [
-                        "users"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                },
-                "body": {
-                    "mode": "raw",
-                    "options": {
-                        "raw": {
-                            "language": "json"
-                        }
-                    },
-                    "raw": "{\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"password\": \"anothersecurepassword456\",\n  \"role\": \"VIEWER\"\n}"
-                }
-            }
-        },
-        {
-            "name": "update",
-            "request": {
-                "method": "PATCH",
-                "url": {
-                    "raw": "http://localhost:3000/users/2",
-                    "path": [
-                        "users",
-                        "2"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                },
-                "body": {
-                    "mode": "raw",
-                    "options": {
-                        "raw": {
-                            "language": "json"
-                        }
-                    },
-                    "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Smith\",\n  \"email\": \"john.smith@example.com\",\n  \"password\": \"anothersecurepassword456\",\n  \"role\": \"VIEWER\"\n}"
-                }
-            }
-        },
-        {
-            "name": "delete",
-            "request": {
-                "method": "DELETE",
-                "url": {
-                    "raw": "http://localhost:3000/users/2",
-                    "path": [
-                        "users",
-                        "2"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                }
-            }
-        },
-        {
-            "name": "restore",
-            "request": {
-                "method": "PATCH",
-                "url": {
-                    "raw": "http://localhost:3000/users/2/restore",
-                    "path": [
-                        "users",
-                        "2",
-                        "restore"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                }
-            }
-        },
-        {
-            "name": "sign-up",
-            "request": {
-                "method": "POST",
-                "url": {
-                    "raw": "http://localhost:3000/sign-up",
-                    "path": [
-                        "sign-up"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                },
-                "body": {
-                    "mode": "raw",
-                    "options": {
-                        "raw": {
-                            "language": "json"
-                        }
-                    },
-                    "raw": "{\n  \"first_name\": \"Joe\",\n  \"last_name\": \"Dalton\",\n  \"email\": \"joe.dalton@example.com\",\n  \"password\": \"securepassword123\",\n  \"role\": \"MANAGER\"\n}"
-                }
-            }
-        },
-        {
-            "name": "sign-up admin",
-            "request": {
-                "method": "POST",
-                "url": {
-                    "raw": "http://localhost:3000/sign-up",
-                    "path": [
-                        "sign-up"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                },
-                "body": {
-                    "mode": "raw",
-                    "options": {
-                        "raw": {
-                            "language": "json"
-                        }
-                    },
-                    "raw": "{\n  \"first_name\": \"Michael\",\n  \"last_name\": \"Myers\",\n  \"email\": \"halloween@example.com\",\n  \"password\": \"securepassword123\",\n  \"role\": \"ADMIN\"\n}"
-                }
-            }
-        },
-        {
-            "name": "sign-in",
-            "request": {
-                "method": "POST",
-                "url": {
-                    "raw": "http://localhost:3000/sign-in",
-                    "path": [
-                        "sign-in"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                },
-                "body": {
-                    "mode": "raw",
-                    "options": {
-                        "raw": {
-                            "language": "json"
-                        }
-                    },
-                    "raw": "{\n  \"email\": \"joe.dalton@example.com\",\n  \"password\": \"securepassword123\"\n}"
-                }
-            }
-        }
-    ]
+	"info": {
+		"_postman_id": "d055c502-31cf-48d9-9514-168353aed8cf",
+		"name": "user",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"description": ""
+	},
+	"item": [
+		{
+			"name": "get-all",
+			"request": {
+				"method": "GET",
+				"url": {
+					"raw": "http://localhost:3000/users",
+					"path": ["users"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				}
+			}
+		},
+		{
+			"name": "get",
+			"request": {
+				"method": "GET",
+				"url": {
+					"raw": "http://localhost:3000/users/1",
+					"path": ["users", "1"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				}
+			}
+		},
+		{
+			"name": "create",
+			"request": {
+				"method": "POST",
+				"url": {
+					"raw": "http://localhost:3000/users",
+					"path": ["users"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				},
+				"body": {
+					"mode": "raw",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					},
+					"raw": "{\n  \"name\": \"Jane Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"password\": \"anothersecurepassword456\",\n  \"role\": \"VIEWER\"\n}"
+				}
+			}
+		},
+		{
+			"name": "update",
+			"request": {
+				"method": "PATCH",
+				"url": {
+					"raw": "http://localhost:3000/users/2",
+					"path": ["users", "2"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				},
+				"body": {
+					"mode": "raw",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					},
+					"raw": "{\n  \"name\": \"John Smith\",\n  \"email\": \"john.smith@example.com\",\n  \"password\": \"anothersecurepassword456\",\n  \"role\": \"VIEWER\"\n}"
+				}
+			}
+		},
+		{
+			"name": "delete",
+			"request": {
+				"method": "DELETE",
+				"url": {
+					"raw": "http://localhost:3000/users/2",
+					"path": ["users", "2"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				}
+			}
+		},
+		{
+			"name": "restore",
+			"request": {
+				"method": "PATCH",
+				"url": {
+					"raw": "http://localhost:3000/users/2/restore",
+					"path": ["users", "2", "restore"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				}
+			}
+		},
+		{
+			"name": "sign-up",
+			"request": {
+				"method": "POST",
+				"url": {
+					"raw": "http://localhost:3000/sign-up",
+					"path": ["sign-up"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				},
+				"body": {
+					"mode": "raw",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					},
+					"raw": "{\n  \"name\": \"Joe Dalton\",\n  \"email\": \"joe.dalton@example.com\",\n  \"password\": \"securepassword123\",\n  \"role\": \"MANAGER\"\n}"
+				}
+			}
+		},
+		{
+			"name": "sign-up admin",
+			"request": {
+				"method": "POST",
+				"url": {
+					"raw": "http://localhost:3000/sign-up",
+					"path": ["sign-up"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				},
+				"body": {
+					"mode": "raw",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					},
+					"raw": "{\n  \"name\": \"Michael Myers\",\n  \"email\": \"halloween@example.com\",\n  \"password\": \"securepassword123\",\n  \"role\": \"ADMIN\"\n}"
+				}
+			}
+		},
+		{
+			"name": "sign-in",
+			"request": {
+				"method": "POST",
+				"url": {
+					"raw": "http://localhost:3000/sign-in",
+					"path": ["sign-in"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				},
+				"body": {
+					"mode": "raw",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					},
+					"raw": "{\n  \"email\": \"joe.dalton@example.com\",\n  \"password\": \"securepassword123\"\n}"
+				}
+			}
+		}
+	]
 }

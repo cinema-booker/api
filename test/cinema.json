@@ -1,144 +1,115 @@
 {
-    "info": {
-        "_postman_id": "b4e4358d-df43-4f22-8aab-f642a8f7000c",
-        "name": "cinema",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-        "description": ""
-    },
-    "item": [
-        {
-            "name": "get-all",
-            "request": {
-                "method": "GET",
-                "url": {
-                    "raw": "http://localhost:3000/cinemas",
-                    "path": [
-                        "cinemas"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                }
-            }
-        },
-        {
-            "name": "create",
-            "request": {
-                "method": "POST",
-                "url": {
-                    "raw": "http://localhost:3000/cinemas",
-                    "path": [
-                        "cinemas"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                },
-                "body": {
-                    "mode": "raw",
-                    "options": {
-                        "raw": {
-                            "language": "json"
-                        }
-                    },
-                    "raw": "{\n  \"address_country\": \"France\",\n  \"address_city\": \"Biarritz\",\n  \"address_zip_code\": \"75001\",\n  \"address_street\": \"123 Rue de Rivoli\",\n  \"address_longitude\": 2.3374,\n  \"address_latitude\": 48.8606,\n  \"name\": \"Cinéma Rivol\",\n  \"description\": \"Un cinéma historique situé au cœur de Paris\",\n  \"user_id\": 1\n}\n"
-                }
-            }
-        },
-        {
-            "name": "get",
-            "request": {
-                "method": "GET",
-                "url": {
-                    "raw": "http://localhost:3000/cinemas/5",
-                    "path": [
-                        "cinemas",
-                        "5"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                },
-                "body": {
-                    "mode": "raw",
-                    "options": {
-                        "raw": {
-                            "language": "json"
-                        }
-                    },
-                    "raw": "{\n  \"address_country\": \"France\",\n  \"address_city\": \"Paris\",\n  \"address_zip_code\": \"75001\",\n  \"address_street\": \"123 Rue de Rivoli\",\n  \"address_longitude\": 2.3374,\n  \"address_latitude\": 48.8606,\n  \"name\": \"Cinéma Rivoli\",\n  \"description\": \"Un cinéma historique situé au cœur de Paris\",\n  \"user_id\": 2\n}\n"
-                }
-            }
-        },
-        {
-            "name": "update",
-            "request": {
-                "method": "PATCH",
-                "url": {
-                    "raw": "http://localhost:3000/cinemas/5",
-                    "path": [
-                        "cinemas",
-                        "5"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                },
-                "body": {
-                    "mode": "raw",
-                    "options": {
-                        "raw": {
-                            "language": "json"
-                        }
-                    },
-                    "raw": "{\n  \"name\": \"Cinéma Rivolin\",\n  \"description\": \"Un cinéma historique situé au cœur de Paris\"\n}\n"
-                }
-            }
-        },
-        {
-            "name": "delete",
-            "request": {
-                "method": "DELETE",
-                "url": {
-                    "raw": "http://localhost:3000/cinemas/7",
-                    "path": [
-                        "cinemas",
-                        "7"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                }
-            }
-        },
-        {
-            "name": "restore",
-            "request": {
-                "method": "PATCH",
-                "url": {
-                    "raw": "http://localhost:3000/cinemas/6/restore",
-                    "path": [
-                        "cinemas",
-                        "6",
-                        "restore"
-                    ],
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "3000"
-                }
-            }
-        }
-    ]
+	"info": {
+		"_postman_id": "b4e4358d-df43-4f22-8aab-f642a8f7000c",
+		"name": "cinema",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"description": ""
+	},
+	"item": [
+		{
+			"name": "get-all",
+			"request": {
+				"method": "GET",
+				"url": {
+					"raw": "http://localhost:3000/cinemas",
+					"path": ["cinemas"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				}
+			}
+		},
+		{
+			"name": "create",
+			"request": {
+				"method": "POST",
+				"url": {
+					"raw": "http://localhost:3000/cinemas",
+					"path": ["cinemas"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				},
+				"body": {
+					"mode": "raw",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					},
+					"raw": "{\n  \"address_country\": \"France\",\n  \"address_city\": \"Biarritz\",\n  \"address_zip_code\": \"75001\",\n  \"address_street\": \"123 Rue de Rivoli\",\n  \"address_longitude\": 2.3374,\n  \"address_latitude\": 48.8606,\n  \"name\": \"Cinéma Rivol\",\n  \"description\": \"Un cinéma historique situé au cœur de Paris\",\n  \"user_id\": 1\n}\n"
+				}
+			}
+		},
+		{
+			"name": "get",
+			"request": {
+				"method": "GET",
+				"url": {
+					"raw": "http://localhost:3000/cinemas/5",
+					"path": ["cinemas", "5"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				},
+				"body": {
+					"mode": "raw",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					},
+					"raw": "{\n  \"address_country\": \"France\",\n  \"address_city\": \"Paris\",\n  \"address_zip_code\": \"75001\",\n  \"address_street\": \"123 Rue de Rivoli\",\n  \"address_longitude\": 2.3374,\n  \"address_latitude\": 48.8606,\n  \"name\": \"Cinéma Rivoli\",\n  \"description\": \"Un cinéma historique situé au cœur de Paris\",\n  \"user_id\": 2\n}\n"
+				}
+			}
+		},
+		{
+			"name": "update",
+			"request": {
+				"method": "PATCH",
+				"url": {
+					"raw": "http://localhost:3000/cinemas/5",
+					"path": ["cinemas", "5"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				},
+				"body": {
+					"mode": "raw",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					},
+					"raw": "{\n  \"name\": \"Cinéma Rivolin\",\n  \"description\": \"Un cinéma historique situé au cœur de Paris\"\n}\n"
+				}
+			}
+		},
+		{
+			"name": "delete",
+			"request": {
+				"method": "DELETE",
+				"url": {
+					"raw": "http://localhost:3000/cinemas/7",
+					"path": ["cinemas", "7"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				}
+			}
+		},
+		{
+			"name": "restore",
+			"request": {
+				"method": "PATCH",
+				"url": {
+					"raw": "http://localhost:3000/cinemas/6/restore",
+					"path": ["cinemas", "6", "restore"],
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000"
+				}
+			}
+		}
+	]
 }

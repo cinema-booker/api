@@ -20,9 +20,8 @@ type Event struct {
 }
 
 type User struct {
-	Id        int    `json:"id" db:"id"`
-	FirstName string `json:"first_name" db:"first_name"`
-	LastName  string `json:"last_name" db:"last_name"`
+	Id   int    `json:"id" db:"id"`
+	Name string `json:"name" db:"name"`
 }
 
 type Booking struct {
