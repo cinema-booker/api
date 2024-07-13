@@ -8,7 +8,7 @@ import (
 )
 
 type CinemaStore interface {
-	FindAll() ([]Cinema, error)
+	FindAll(pagination map[string]int) ([]Cinema, error)
 	FindById(id int) (CinemaWithRooms, error)
 	Create(input map[string]interface{}) error
 	Update(id int, input map[string]interface{}) error
@@ -24,25 +24,27 @@ func NewStore(db *sqlx.DB) *Store {
 	}
 }
 
-func (s *Store) FindAll() ([]Cinema, error) {
+func (s *Store) FindAll(pagination map[string]int) ([]Cinema, error) {
 	cinemas := []Cinema{}
+
+	offset := (pagination["page"] - 1) * pagination["limit"]
 	query := `
     SELECT 
       c.id AS id,
+			c.user_id AS user_id,
       c.name AS name,
       c.description AS description,
 			c.deleted_at AS deleted_at,
       a.id AS "address.id",
-      a.country AS "address.country",
-      a.city AS "address.city",
-      a.zip_code AS "address.zip_code",
-      a.street AS "address.street",
+      a.address AS "address.address",
       a.longitude AS "address.longitude",
       a.latitude AS "address.latitude"
     FROM cinemas c
     JOIN addresses a ON c.address_id = a.id
+		WHERE c.deleted_at IS NULL
+		LIMIT $1 OFFSET $2
   `
-	err := s.db.Select(&cinemas, query)
+	err := s.db.Select(&cinemas, query, pagination["limit"], offset)
 
 	return cinemas, err
 }
@@ -56,10 +58,7 @@ func (s *Store) FindById(id int) (CinemaWithRooms, error) {
       c.description AS description,
 			c.deleted_at AS deleted_at,
       a.id AS "address.id",
-      a.country AS "address.country",
-      a.city AS "address.city",
-      a.zip_code AS "address.zip_code",
-      a.street AS "address.street",
+      a.address AS "address.address",
       a.longitude AS "address.longitude",
       a.latitude AS "address.latitude",
       COALESCE(
@@ -75,7 +74,7 @@ func (s *Store) FindById(id int) (CinemaWithRooms, error) {
     FROM cinemas c
     LEFT JOIN addresses a ON c.address_id = a.id
     LEFT JOIN rooms r ON c.id = r.cinema_id
-    WHERE c.id = $1
+    WHERE c.id = $1 AND c.deleted_at IS NULL
     GROUP BY c.id, a.id
   `
 	err := s.db.Get(&cinema, query, id)
@@ -97,17 +96,14 @@ func (s *Store) Create(input map[string]interface{}) error {
 	}()
 
 	address := Address{
-		Country:   input["address_country"].(string),
-		City:      input["address_city"].(string),
-		ZipCode:   input["address_zip_code"].(string),
-		Street:    input["address_street"].(string),
+		Address:   input["address_address"].(string),
 		Longitude: input["address_longitude"].(float64),
 		Latitude:  input["address_latitude"].(float64),
 	}
 
 	var addressId int
-	addressQuery := "INSERT INTO addresses (country, city, zip_code, street, longitude, latitude) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id"
-	err = tx.QueryRowx(addressQuery, address.Country, address.City, address.ZipCode, address.Street, address.Longitude, address.Latitude).Scan(&addressId)
+	addressQuery := "INSERT INTO addresses (address, longitude, latitude) VALUES ($1, $2, $3) RETURNING id"
+	err = tx.QueryRowx(addressQuery, address.Address, address.Longitude, address.Latitude).Scan(&addressId)
 	if err != nil {
 		return err
 	}

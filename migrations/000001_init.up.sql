@@ -2,10 +2,7 @@
 
 CREATE TABLE "addresses" (
   "id" SERIAL PRIMARY KEY,
-  "country" VARCHAR(255) NOT NULL,
-  "city" VARCHAR(255) NOT NULL,
-  "zip_code" VARCHAR(20) NOT NULL,
-  "street" VARCHAR(255) NOT NULL,
+  "address" VARCHAR(255) NOT NULL,
   "longitude" DECIMAL(10, 8) NOT NULL,
   "latitude" DECIMAL(11, 8) NOT NULL
 );

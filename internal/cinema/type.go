@@ -15,10 +15,7 @@ const (
 
 type Address struct {
 	Id        int     `json:"id" db:"id"`
-	Country   string  `json:"country" db:"country"`
-	City      string  `json:"city" db:"city"`
-	ZipCode   string  `json:"zip_code" db:"zip_code"`
-	Street    string  `json:"street" db:"street"`
+	Address   string  `json:"address" db:"address"`
 	Longitude float64 `json:"longitude" db:"longitude"`
 	Latitude  float64 `json:"latitude" db:"latitude"`
 }

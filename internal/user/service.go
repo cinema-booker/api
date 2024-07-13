@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/cinema-booker/internal/constants"
 	"github.com/cinema-booker/pkg/generator"
 	"github.com/cinema-booker/pkg/hasher"
 	"github.com/cinema-booker/pkg/jwt"
@@ -181,7 +182,10 @@ func (s *Service) ResetPassword(ctx context.Context, input map[string]interface{
 }
 
 func (s *Service) GetMe(ctx context.Context) (map[string]interface{}, error) {
-	userId := ctx.Value("userId").(int)
+	userId, ok := ctx.Value(constants.UserIDKey).(int)
+	if !ok {
+		return nil, fmt.Errorf("Unauthorized")
+	}
 
 	user, err := s.store.FindById(userId)
 	if err != nil {
