@@ -2,7 +2,10 @@ package cinema
 
 import (
 	"context"
+	"fmt"
 	"time"
+
+	"github.com/cinema-booker/internal/constants"
 )
 
 type CinemaService interface {
@@ -33,6 +36,12 @@ func (s *Service) Get(ctx context.Context, id int) (CinemaWithRooms, error) {
 }
 
 func (s *Service) Create(ctx context.Context, input map[string]interface{}) error {
+	userId, ok := ctx.Value(constants.UserIDKey).(int)
+	if !ok {
+		return fmt.Errorf("Unauthorized")
+	}
+	input["user_id"] = userId
+
 	return s.store.Create(input)
 }
 

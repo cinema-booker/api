@@ -11,9 +11,6 @@ DROP TABLE IF EXISTS "movies";
 DROP TABLE IF EXISTS "rooms";
 DROP TYPE IF EXISTS rooms_type_enum;
 
--- Table: users_cinemas
-DROP TABLE IF EXISTS "users_cinemas";
-
 -- Table: cinemas
 DROP TABLE IF EXISTS "cinemas";
 

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/cinema-booker/api/middelware"
+	"github.com/cinema-booker/api/middleware"
 	"github.com/cinema-booker/internal/event"
 	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
@@ -26,12 +26,12 @@ func NewEventHandler(service event.EventService, userStore user.UserStore) *Even
 }
 
 func (h *EventHandler) RegisterRoutes(mux *mux.Router) {
-	mux.Handle("/events", errors.ErrorHandler(middelware.IsAuth(h.GetAll, h.userStore))).Methods(http.MethodGet)
-	mux.Handle("/events/{id}", errors.ErrorHandler(middelware.IsAuth(h.Get, h.userStore))).Methods(http.MethodGet)
-	mux.Handle("/events", errors.ErrorHandler(middelware.IsAuth(h.Create, h.userStore))).Methods(http.MethodPost)
-	mux.Handle("/events/{id}", errors.ErrorHandler(middelware.IsAuth(h.Update, h.userStore))).Methods(http.MethodPatch)
-	mux.Handle("/events/{id}", errors.ErrorHandler(middelware.IsAuth(h.Delete, h.userStore))).Methods(http.MethodDelete)
-	mux.Handle("/events/{id}/restore", errors.ErrorHandler(middelware.IsAuth(h.Restore, h.userStore))).Methods(http.MethodPatch)
+	mux.Handle("/events", errors.ErrorHandler(middleware.IsAuth(h.GetAll, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/events/{id}", errors.ErrorHandler(middleware.IsAuth(h.Get, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/events", errors.ErrorHandler(middleware.IsAuth(h.Create, h.userStore))).Methods(http.MethodPost)
+	mux.Handle("/events/{id}", errors.ErrorHandler(middleware.IsAuth(h.Update, h.userStore))).Methods(http.MethodPatch)
+	mux.Handle("/events/{id}", errors.ErrorHandler(middleware.IsAuth(h.Delete, h.userStore))).Methods(http.MethodDelete)
+	mux.Handle("/events/{id}/restore", errors.ErrorHandler(middleware.IsAuth(h.Restore, h.userStore))).Methods(http.MethodPatch)
 }
 
 func (h *EventHandler) GetAll(w http.ResponseWriter, r *http.Request) error {

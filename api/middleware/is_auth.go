@@ -1,4 +1,4 @@
-package middelware
+package middleware
 
 import (
 	"context"
@@ -7,16 +7,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/cinema-booker/internal/constants"
 	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
 	"github.com/cinema-booker/pkg/jwt"
-)
-
-type contextKey string
-
-const (
-	UserIDKey   contextKey = "userId"
-	UserRoleKey contextKey = "userRole"
 )
 
 func IsAuth(handlerFunc errors.ErrorHandler, store user.UserStore) errors.ErrorHandler {
@@ -56,8 +50,8 @@ func IsAuth(handlerFunc errors.ErrorHandler, store user.UserStore) errors.ErrorH
 		}
 
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, UserIDKey, user.Id)
-		ctx = context.WithValue(ctx, UserRoleKey, user.Role)
+		ctx = context.WithValue(ctx, constants.UserIDKey, user.Id)
+		ctx = context.WithValue(ctx, constants.UserRoleKey, user.Role)
 		r = r.WithContext(ctx)
 
 		return handlerFunc(w, r)

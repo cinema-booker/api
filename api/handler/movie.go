@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/cinema-booker/api/middelware"
+	"github.com/cinema-booker/api/middleware"
 	"github.com/cinema-booker/internal/movie"
 	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
@@ -24,7 +24,7 @@ func NewMovieHandler(service movie.MovieService, userStore user.UserStore) *Movi
 }
 
 func (h *MovieHandler) RegisterRoutes(mux *mux.Router) {
-	mux.Handle("/movies", errors.ErrorHandler(middelware.IsAuth(h.Search, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/movies", errors.ErrorHandler(middleware.IsAuth(h.Search, h.userStore))).Methods(http.MethodGet)
 }
 
 func (h *MovieHandler) Search(w http.ResponseWriter, r *http.Request) error {

@@ -118,19 +118,11 @@ func (s *Store) Create(input map[string]interface{}) error {
 	}
 
 	var cinemaId int
-	cinemaQuery := "INSERT INTO cinemas (address_id, name, description) VALUES ($1, $2, $3) RETURNING id"
-	err = tx.QueryRowx(cinemaQuery, addressId, cinema.Name, cinema.Description).Scan(&cinemaId)
+	cinemaQuery := "INSERT INTO cinemas (user_id, address_id, name, description) VALUES ($1, $2, $3, $4) RETURNING id"
+	err = tx.QueryRowx(cinemaQuery, input["user_id"], addressId, cinema.Name, cinema.Description).Scan(&cinemaId)
 	if err != nil {
 		return err
 	}
-
-	userIdFloat64, ok := input["user_id"].(float64)
-	if !ok {
-		return fmt.Errorf("invalid type for user_id")
-	}
-	userId := int(userIdFloat64)
-	userCinemaQuery := "INSERT INTO users_cinemas (user_id, cinema_id) VALUES ($1, $2)"
-	_, err = tx.Exec(userCinemaQuery, userId, cinemaId)
 
 	return nil
 }

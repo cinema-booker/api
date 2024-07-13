@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/cinema-booker/api/middelware"
+	"github.com/cinema-booker/api/middleware"
 	"github.com/cinema-booker/internal/room"
 	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
@@ -25,9 +25,9 @@ func NewRoomHandler(service room.RoomService, userStore user.UserStore) *RoomHan
 }
 
 func (h *RoomHandler) RegisterRoutes(mux *mux.Router) {
-	mux.Handle("/rooms", errors.ErrorHandler(middelware.IsAuth(h.Create, h.userStore))).Methods(http.MethodPost)
-	mux.Handle("/rooms/{id}", errors.ErrorHandler(middelware.IsAuth(h.Update, h.userStore))).Methods(http.MethodPatch)
-	mux.Handle("/rooms/{id}", errors.ErrorHandler(middelware.IsAuth(h.Delete, h.userStore))).Methods(http.MethodDelete)
+	mux.Handle("/rooms", errors.ErrorHandler(middleware.IsAuth(h.Create, h.userStore))).Methods(http.MethodPost)
+	mux.Handle("/rooms/{id}", errors.ErrorHandler(middleware.IsAuth(h.Update, h.userStore))).Methods(http.MethodPatch)
+	mux.Handle("/rooms/{id}", errors.ErrorHandler(middleware.IsAuth(h.Delete, h.userStore))).Methods(http.MethodDelete)
 }
 
 func (h *RoomHandler) Create(w http.ResponseWriter, r *http.Request) error {

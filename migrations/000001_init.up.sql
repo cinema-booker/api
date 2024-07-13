@@ -29,20 +29,12 @@ CREATE TABLE "users" (
 
 CREATE TABLE "cinemas" (
   "id" SERIAL PRIMARY KEY,
+  "user_id" INTEGER NOT NULL REFERENCES "users"("id"),
   "address_id" INTEGER NOT NULL REFERENCES "addresses"("id"),
   "name" VARCHAR(255) NOT NULL,
   "description" TEXT DEFAULT '',
   "deleted_at" TIMESTAMP
   --"images" TEXT[] DEFAULT '{}'
-);
-
--- Table: users_cinemas
-
-CREATE TABLE "users_cinemas" (
-  "id" SERIAL PRIMARY KEY,
-  "user_id" INTEGER NOT NULL REFERENCES "users"("id"),
-  "cinema_id" INTEGER NOT NULL REFERENCES "cinemas"("id"),
-  UNIQUE ("user_id", "cinema_id")
 );
 
 -- Table: rooms

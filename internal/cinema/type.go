@@ -31,6 +31,7 @@ type Room struct {
 
 type Cinema struct {
 	Id          int        `json:"id" db:"id"`
+	UserId      int        `json:"user_id" db:"user_id"`
 	Name        string     `json:"name" db:"name"`
 	Description string     `json:"description" db:"description"`
 	DeletedAt   *time.Time `json:"deleted_at" db:"deleted_at"`

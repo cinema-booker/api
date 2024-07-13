@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cinema-booker/api/middelware"
+	"github.com/cinema-booker/api/middleware"
 	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
 	"github.com/cinema-booker/pkg/json"
@@ -27,18 +27,18 @@ func NewUserHandler(service user.UserService, userStore user.UserStore) *UserHan
 }
 
 func (h *UserHandler) RegisterRoutes(mux *mux.Router) {
-	mux.Handle("/users", errors.ErrorHandler(middelware.IsAuth(h.GetAll, h.userStore))).Methods(http.MethodGet)
-	mux.Handle("/users/{id}", errors.ErrorHandler(middelware.IsAuth(h.Get, h.userStore))).Methods(http.MethodGet)
-	mux.Handle("/users", errors.ErrorHandler(middelware.IsAuth(h.Create, h.userStore))).Methods(http.MethodPost)
-	mux.Handle("/users/{id}", errors.ErrorHandler(middelware.IsAuth(h.Update, h.userStore))).Methods(http.MethodPatch)
-	mux.Handle("/users/{id}", errors.ErrorHandler(middelware.IsAuth(h.Delete, h.userStore))).Methods(http.MethodDelete)
-	mux.Handle("/users/{id}/restore", errors.ErrorHandler(middelware.IsAuth(h.Restore, h.userStore))).Methods(http.MethodPatch)
+	mux.Handle("/users", errors.ErrorHandler(middleware.IsAuth(h.GetAll, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/users/{id}", errors.ErrorHandler(middleware.IsAuth(h.Get, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/users", errors.ErrorHandler(middleware.IsAuth(h.Create, h.userStore))).Methods(http.MethodPost)
+	mux.Handle("/users/{id}", errors.ErrorHandler(middleware.IsAuth(h.Update, h.userStore))).Methods(http.MethodPatch)
+	mux.Handle("/users/{id}", errors.ErrorHandler(middleware.IsAuth(h.Delete, h.userStore))).Methods(http.MethodDelete)
+	mux.Handle("/users/{id}/restore", errors.ErrorHandler(middleware.IsAuth(h.Restore, h.userStore))).Methods(http.MethodPatch)
 
 	mux.Handle("/sign-up", errors.ErrorHandler(h.SignUp)).Methods(http.MethodPost)
 	mux.Handle("/sign-in", errors.ErrorHandler(h.SignIn)).Methods(http.MethodPost)
 	mux.Handle("/send-password-reset", errors.ErrorHandler(h.SendPasswordReset)).Methods(http.MethodPost)
 	mux.Handle("/reset-password", errors.ErrorHandler(h.ResetPassword)).Methods(http.MethodPost)
-	mux.Handle("/me", errors.ErrorHandler(middelware.IsAuth(h.GetMe, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/me", errors.ErrorHandler(middleware.IsAuth(h.GetMe, h.userStore))).Methods(http.MethodGet)
 }
 
 func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
