@@ -5,33 +5,37 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/cinema-booker/api/middelware"
 	"github.com/cinema-booker/internal/cinema"
+	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
 	"github.com/cinema-booker/pkg/json"
 	"github.com/gorilla/mux"
 )
 
 type CinemaHandler struct {
-	service cinema.CinemaService
+	service   cinema.CinemaService
+	userStore user.UserStore
 }
 
-func NewCinemaHandler(service cinema.CinemaService) *CinemaHandler {
+func NewCinemaHandler(service cinema.CinemaService, userStore user.UserStore) *CinemaHandler {
 	return &CinemaHandler{
-		service: service,
+		service:   service,
+		userStore: userStore,
 	}
 }
 
 func (h *CinemaHandler) RegisterRoutes(mux *mux.Router) {
-	mux.Handle("/cinemas", errors.ErrorHandler(h.GetAll)).Methods(http.MethodGet)
-	mux.Handle("/cinemas/{id}", errors.ErrorHandler(h.Get)).Methods(http.MethodGet)
-	mux.Handle("/cinemas", errors.ErrorHandler(h.Create)).Methods(http.MethodPost)
-	mux.Handle("/cinemas/{id}", errors.ErrorHandler(h.Update)).Methods(http.MethodPatch)
-	mux.Handle("/cinemas/{id}", errors.ErrorHandler(h.Delete)).Methods(http.MethodDelete)
-	mux.Handle("/cinemas/{id}/restore", errors.ErrorHandler(h.Restore)).Methods(http.MethodPatch)
+	mux.Handle("/cinemas", errors.ErrorHandler(middelware.IsAuth(h.GetAll, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/cinemas/{id}", errors.ErrorHandler(middelware.IsAuth(h.Get, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/cinemas", errors.ErrorHandler(middelware.IsAuth(h.Create, h.userStore))).Methods(http.MethodPost)
+	mux.Handle("/cinemas/{id}", errors.ErrorHandler(middelware.IsAuth(h.Update, h.userStore))).Methods(http.MethodPatch)
+	mux.Handle("/cinemas/{id}", errors.ErrorHandler(middelware.IsAuth(h.Delete, h.userStore))).Methods(http.MethodDelete)
+	mux.Handle("/cinemas/{id}/restore", errors.ErrorHandler(middelware.IsAuth(h.Restore, h.userStore))).Methods(http.MethodPatch)
 }
 
 func (h *CinemaHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
-	cinemas, err := h.service.GetAll()
+	cinemas, err := h.service.GetAll(r.Context())
 	if err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
@@ -59,7 +63,7 @@ func (h *CinemaHandler) Get(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	cinema, err := h.service.Get(id)
+	cinema, err := h.service.Get(r.Context(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return errors.HTTPError{
@@ -92,7 +96,7 @@ func (h *CinemaHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Create(input); err != nil {
+	if err := h.service.Create(r.Context(), input); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -127,7 +131,7 @@ func (h *CinemaHandler) Update(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Update(id, input); err != nil {
+	if err := h.service.Update(r.Context(), id, input); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -154,7 +158,7 @@ func (h *CinemaHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Delete(id); err != nil {
+	if err := h.service.Delete(r.Context(), id); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -181,7 +185,7 @@ func (h *CinemaHandler) Restore(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Restore(id); err != nil {
+	if err := h.service.Restore(r.Context(), id); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,

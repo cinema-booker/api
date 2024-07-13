@@ -4,26 +4,30 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/cinema-booker/api/middelware"
 	"github.com/cinema-booker/internal/room"
+	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
 	"github.com/cinema-booker/pkg/json"
 	"github.com/gorilla/mux"
 )
 
 type RoomHandler struct {
-	service room.RoomService
+	service   room.RoomService
+	userStore user.UserStore
 }
 
-func NewRoomHandler(service room.RoomService) *RoomHandler {
+func NewRoomHandler(service room.RoomService, userStore user.UserStore) *RoomHandler {
 	return &RoomHandler{
-		service: service,
+		service:   service,
+		userStore: userStore,
 	}
 }
 
 func (h *RoomHandler) RegisterRoutes(mux *mux.Router) {
-	mux.Handle("/rooms", errors.ErrorHandler(h.Create)).Methods(http.MethodPost)
-	mux.Handle("/rooms/{id}", errors.ErrorHandler(h.Update)).Methods(http.MethodPatch)
-	mux.Handle("/rooms/{id}", errors.ErrorHandler(h.Delete)).Methods(http.MethodDelete)
+	mux.Handle("/rooms", errors.ErrorHandler(middelware.IsAuth(h.Create, h.userStore))).Methods(http.MethodPost)
+	mux.Handle("/rooms/{id}", errors.ErrorHandler(middelware.IsAuth(h.Update, h.userStore))).Methods(http.MethodPatch)
+	mux.Handle("/rooms/{id}", errors.ErrorHandler(middelware.IsAuth(h.Delete, h.userStore))).Methods(http.MethodDelete)
 }
 
 func (h *RoomHandler) Create(w http.ResponseWriter, r *http.Request) error {
@@ -35,7 +39,7 @@ func (h *RoomHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Create(input); err != nil {
+	if err := h.service.Create(r.Context(), input); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -70,7 +74,7 @@ func (h *RoomHandler) Update(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Update(id, input); err != nil {
+	if err := h.service.Update(r.Context(), id, input); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -97,7 +101,7 @@ func (h *RoomHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Delete(id); err != nil {
+	if err := h.service.Delete(r.Context(), id); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,

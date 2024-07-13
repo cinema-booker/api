@@ -3,30 +3,34 @@ package handler
 import (
 	"net/http"
 
+	"github.com/cinema-booker/api/middelware"
 	"github.com/cinema-booker/internal/movie"
+	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
 	"github.com/cinema-booker/pkg/json"
 	"github.com/gorilla/mux"
 )
 
 type MovieHandler struct {
-	service movie.MovieService
+	service   movie.MovieService
+	userStore user.UserStore
 }
 
-func NewMovieHandler(service movie.MovieService) *MovieHandler {
+func NewMovieHandler(service movie.MovieService, userStore user.UserStore) *MovieHandler {
 	return &MovieHandler{
-		service: service,
+		service:   service,
+		userStore: userStore,
 	}
 }
 
 func (h *MovieHandler) RegisterRoutes(mux *mux.Router) {
-	mux.Handle("/movies", errors.ErrorHandler(h.Search)).Methods(http.MethodGet)
+	mux.Handle("/movies", errors.ErrorHandler(middelware.IsAuth(h.Search, h.userStore))).Methods(http.MethodGet)
 }
 
 func (h *MovieHandler) Search(w http.ResponseWriter, r *http.Request) error {
 	query := r.URL.Query().Get("query")
 
-	event, err := h.service.Search(query)
+	event, err := h.service.Search(r.Context(), query)
 	if err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,

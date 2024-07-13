@@ -1,16 +1,17 @@
 package cinema
 
 import (
+	"context"
 	"time"
 )
 
 type CinemaService interface {
-	GetAll() ([]Cinema, error)
-	Get(id int) (CinemaWithRooms, error)
-	Create(input map[string]interface{}) error
-	Update(id int, input map[string]interface{}) error
-	Delete(id int) error
-	Restore(id int) error
+	GetAll(ctx context.Context) ([]Cinema, error)
+	Get(ctx context.Context, id int) (CinemaWithRooms, error)
+	Create(ctx context.Context, input map[string]interface{}) error
+	Update(ctx context.Context, id int, input map[string]interface{}) error
+	Delete(ctx context.Context, id int) error
+	Restore(ctx context.Context, id int) error
 }
 
 type Service struct {
@@ -23,23 +24,23 @@ func NewService(store CinemaStore) *Service {
 	}
 }
 
-func (s *Service) GetAll() ([]Cinema, error) {
+func (s *Service) GetAll(ctx context.Context) ([]Cinema, error) {
 	return s.store.FindAll()
 }
 
-func (s *Service) Get(id int) (CinemaWithRooms, error) {
+func (s *Service) Get(ctx context.Context, id int) (CinemaWithRooms, error) {
 	return s.store.FindById(id)
 }
 
-func (s *Service) Create(input map[string]interface{}) error {
+func (s *Service) Create(ctx context.Context, input map[string]interface{}) error {
 	return s.store.Create(input)
 }
 
-func (s *Service) Update(id int, input map[string]interface{}) error {
+func (s *Service) Update(ctx context.Context, id int, input map[string]interface{}) error {
 	return s.store.Update(id, input)
 }
 
-func (s *Service) Delete(id int) error {
+func (s *Service) Delete(ctx context.Context, id int) error {
 	_, err := s.store.FindById(id)
 	if err != nil {
 		return err
@@ -50,7 +51,7 @@ func (s *Service) Delete(id int) error {
 	})
 }
 
-func (s *Service) Restore(id int) error {
+func (s *Service) Restore(ctx context.Context, id int) error {
 	_, err := s.store.FindById(id)
 	if err != nil {
 		return err

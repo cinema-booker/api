@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strconv"
@@ -13,18 +14,18 @@ import (
 )
 
 type UserService interface {
-	GetAll() ([]User, error)
-	Get(id int) (User, error)
-	Create(input map[string]interface{}) error
-	Update(id int, input map[string]interface{}) error
-	Delete(id int) error
-	Restore(id int) error
+	GetAll(ctx context.Context) ([]User, error)
+	Get(ctx context.Context, id int) (User, error)
+	Create(ctx context.Context, input map[string]interface{}) error
+	Update(ctx context.Context, id int, input map[string]interface{}) error
+	Delete(ctx context.Context, id int) error
+	Restore(ctx context.Context, id int) error
 
-	SignUp(input map[string]interface{}) error
-	SignIn(input map[string]interface{}) (map[string]interface{}, error)
-	SendPasswordReset(input map[string]interface{}) error
-	ResetPassword(input map[string]interface{}) error
-	GetMe(token string) (map[string]interface{}, error)
+	SignUp(ctx context.Context, input map[string]interface{}) error
+	SignIn(ctx context.Context, input map[string]interface{}) (map[string]interface{}, error)
+	SendPasswordReset(ctx context.Context, input map[string]interface{}) error
+	ResetPassword(ctx context.Context, input map[string]interface{}) error
+	GetMe(ctx context.Context) (map[string]interface{}, error)
 }
 
 type Service struct {
@@ -37,23 +38,23 @@ func NewService(store UserStore) *Service {
 	}
 }
 
-func (s *Service) GetAll() ([]User, error) {
+func (s *Service) GetAll(ctx context.Context) ([]User, error) {
 	return s.store.FindAll()
 }
 
-func (s *Service) Get(id int) (User, error) {
+func (s *Service) Get(ctx context.Context, id int) (User, error) {
 	return s.store.FindById(id)
 }
 
-func (s *Service) Create(input map[string]interface{}) error {
+func (s *Service) Create(ctx context.Context, input map[string]interface{}) error {
 	return s.store.Create(input)
 }
 
-func (s *Service) Update(id int, input map[string]interface{}) error {
+func (s *Service) Update(ctx context.Context, id int, input map[string]interface{}) error {
 	return s.store.Update(id, input)
 }
 
-func (s *Service) Delete(id int) error {
+func (s *Service) Delete(ctx context.Context, id int) error {
 	_, err := s.store.FindById(id)
 	if err != nil {
 		return err
@@ -64,7 +65,7 @@ func (s *Service) Delete(id int) error {
 	})
 }
 
-func (s *Service) Restore(id int) error {
+func (s *Service) Restore(ctx context.Context, id int) error {
 	_, err := s.store.FindById(id)
 	if err != nil {
 		return err
@@ -75,7 +76,7 @@ func (s *Service) Restore(id int) error {
 	})
 }
 
-func (s *Service) SignUp(input map[string]interface{}) error {
+func (s *Service) SignUp(ctx context.Context, input map[string]interface{}) error {
 	_, err := s.store.FindByEmail(input["email"].(string))
 	if err == nil {
 		return fmt.Errorf("email already exists")
@@ -90,7 +91,7 @@ func (s *Service) SignUp(input map[string]interface{}) error {
 	return s.store.Create(input)
 }
 
-func (s *Service) SignIn(input map[string]interface{}) (map[string]interface{}, error) {
+func (s *Service) SignIn(ctx context.Context, input map[string]interface{}) (map[string]interface{}, error) {
 	user, err := s.store.FindByEmail(input["email"].(string))
 	if err != nil {
 		return nil, err
@@ -119,26 +120,7 @@ func (s *Service) SignIn(input map[string]interface{}) (map[string]interface{}, 
 	}, nil
 }
 
-func (s *Service) GetMe(token string) (map[string]interface{}, error) {
-	userIdInt, err := jwt.GetTokenUserId(token, os.Getenv("JWT_SECRET"))
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := s.store.FindById(userIdInt)
-	if err != nil {
-		return nil, err
-	}
-
-	return map[string]interface{}{
-		"id":    user.Id,
-		"name":  user.Name,
-		"email": user.Email,
-		"role":  user.Role,
-	}, nil
-}
-
-func (s *Service) SendPasswordReset(input map[string]interface{}) error {
+func (s *Service) SendPasswordReset(ctx context.Context, input map[string]interface{}) error {
 	user, err := s.store.FindByEmail(input["email"].(string))
 	if err != nil {
 		return err
@@ -166,7 +148,7 @@ func (s *Service) SendPasswordReset(input map[string]interface{}) error {
 	return nil
 }
 
-func (s *Service) ResetPassword(input map[string]interface{}) error {
+func (s *Service) ResetPassword(ctx context.Context, input map[string]interface{}) error {
 	user, err := s.store.FindByEmail(input["email"].(string))
 	if err != nil {
 		return err
@@ -196,4 +178,20 @@ func (s *Service) ResetPassword(input map[string]interface{}) error {
 	}
 
 	return nil
+}
+
+func (s *Service) GetMe(ctx context.Context) (map[string]interface{}, error) {
+	userId := ctx.Value("userId").(int)
+
+	user, err := s.store.FindById(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]interface{}{
+		"id":    user.Id,
+		"name":  user.Name,
+		"email": user.Email,
+		"role":  user.Role,
+	}, nil
 }

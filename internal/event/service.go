@@ -1,6 +1,7 @@
 package event
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -9,12 +10,12 @@ import (
 )
 
 type EventService interface {
-	GetAll() ([]Event, error)
-	Get(id int) (Event, error)
-	Create(input map[string]interface{}) error
-	Update(id int, input map[string]interface{}) error
-	Delete(id int) error
-	Restore(id int) error
+	GetAll(ctx context.Context) ([]Event, error)
+	Get(ctx context.Context, id int) (Event, error)
+	Create(ctx context.Context, input map[string]interface{}) error
+	Update(ctx context.Context, id int, input map[string]interface{}) error
+	Delete(ctx context.Context, id int) error
+	Restore(ctx context.Context, id int) error
 }
 
 type Service struct {
@@ -29,15 +30,15 @@ func NewService(store EventStore, tmdbService *tmdb.TMDB) *Service {
 	}
 }
 
-func (s *Service) GetAll() ([]Event, error) {
+func (s *Service) GetAll(ctx context.Context) ([]Event, error) {
 	return s.store.FindAll()
 }
 
-func (s *Service) Get(id int) (Event, error) {
+func (s *Service) Get(ctx context.Context, id int) (Event, error) {
 	return s.store.FindById(id)
 }
 
-func (s *Service) Create(input map[string]interface{}) error {
+func (s *Service) Create(ctx context.Context, input map[string]interface{}) error {
 	movieIdFloat64, ok := input["movie_id"].(float64)
 	if !ok {
 		return fmt.Errorf("invalid type for movie_id")
@@ -53,11 +54,11 @@ func (s *Service) Create(input map[string]interface{}) error {
 	return s.store.Create(input)
 }
 
-func (s *Service) Update(id int, input map[string]interface{}) error {
+func (s *Service) Update(ctx context.Context, id int, input map[string]interface{}) error {
 	return s.store.Update(id, input)
 }
 
-func (s *Service) Delete(id int) error {
+func (s *Service) Delete(ctx context.Context, id int) error {
 	_, err := s.store.FindById(id)
 	if err != nil {
 		return err
@@ -71,7 +72,7 @@ func (s *Service) Delete(id int) error {
 	})
 }
 
-func (s *Service) Restore(id int) error {
+func (s *Service) Restore(ctx context.Context, id int) error {
 	_, err := s.store.FindById(id)
 	if err != nil {
 		return err

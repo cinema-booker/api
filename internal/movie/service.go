@@ -1,9 +1,13 @@
 package movie
 
-import "github.com/cinema-booker/third_party/tmdb"
+import (
+	"context"
+
+	"github.com/cinema-booker/third_party/tmdb"
+)
 
 type MovieService interface {
-	Search(query string) ([]map[string]interface{}, error)
+	Search(ctx context.Context, query string) ([]map[string]interface{}, error)
 }
 
 type Service struct {
@@ -16,7 +20,7 @@ func NewService(tmdbService *tmdb.TMDB) *Service {
 	}
 }
 
-func (s *Service) Search(query string) ([]map[string]interface{}, error) {
+func (s *Service) Search(ctx context.Context, query string) ([]map[string]interface{}, error) {
 	movies, err := s.tmdbService.SearchMovies(query)
 	if err != nil {
 		return nil, err

@@ -41,31 +41,31 @@ func (s *APIServer) Start() error {
 
 	userStore := user.NewStore(s.db)
 	userService := user.NewService(userStore)
-	userHandler := handler.NewUserHandler(userService)
+	userHandler := handler.NewUserHandler(userService, userStore)
 	userHandler.RegisterRoutes(router)
 
 	cinemaStore := cinema.NewStore(s.db)
 	cinemaService := cinema.NewService(cinemaStore)
-	cinemaHandler := handler.NewCinemaHandler(cinemaService)
+	cinemaHandler := handler.NewCinemaHandler(cinemaService, userStore)
 	cinemaHandler.RegisterRoutes(router)
 
 	roomStore := room.NewStore(s.db)
 	roomService := room.NewService(roomStore)
-	roomHandler := handler.NewRoomHandler(roomService)
+	roomHandler := handler.NewRoomHandler(roomService, userStore)
 	roomHandler.RegisterRoutes(router)
 
 	eventStore := event.NewStore(s.db)
 	eventService := event.NewService(eventStore, tmdbService)
-	eventHandler := handler.NewEventHandler(eventService)
+	eventHandler := handler.NewEventHandler(eventService, userStore)
 	eventHandler.RegisterRoutes(router)
 
 	bookingStore := booking.NewStore(s.db)
 	bookingService := booking.NewService(bookingStore)
-	bookingHandler := handler.NewBookingHandler(bookingService)
+	bookingHandler := handler.NewBookingHandler(bookingService, userStore)
 	bookingHandler.RegisterRoutes(router)
 
 	movieService := movie.NewService(tmdbService)
-	movieHandler := handler.NewMovieHandler(movieService)
+	movieHandler := handler.NewMovieHandler(movieService, userStore)
 	movieHandler.RegisterRoutes(router)
 
 	log.Printf("🚀 Starting server on %s", s.address)

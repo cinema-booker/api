@@ -5,33 +5,37 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/cinema-booker/api/middelware"
 	"github.com/cinema-booker/internal/event"
+	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
 	"github.com/cinema-booker/pkg/json"
 	"github.com/gorilla/mux"
 )
 
 type EventHandler struct {
-	service event.EventService
+	service   event.EventService
+	userStore user.UserStore
 }
 
-func NewEventHandler(service event.EventService) *EventHandler {
+func NewEventHandler(service event.EventService, userStore user.UserStore) *EventHandler {
 	return &EventHandler{
-		service: service,
+		service:   service,
+		userStore: userStore,
 	}
 }
 
 func (h *EventHandler) RegisterRoutes(mux *mux.Router) {
-	mux.Handle("/events", errors.ErrorHandler(h.GetAll)).Methods(http.MethodGet)
-	mux.Handle("/events/{id}", errors.ErrorHandler(h.Get)).Methods(http.MethodGet)
-	mux.Handle("/events", errors.ErrorHandler(h.Create)).Methods(http.MethodPost)
-	mux.Handle("/events/{id}", errors.ErrorHandler(h.Update)).Methods(http.MethodPatch)
-	mux.Handle("/events/{id}", errors.ErrorHandler(h.Delete)).Methods(http.MethodDelete)
-	mux.Handle("/events/{id}/restore", errors.ErrorHandler(h.Restore)).Methods(http.MethodPatch)
+	mux.Handle("/events", errors.ErrorHandler(middelware.IsAuth(h.GetAll, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/events/{id}", errors.ErrorHandler(middelware.IsAuth(h.Get, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/events", errors.ErrorHandler(middelware.IsAuth(h.Create, h.userStore))).Methods(http.MethodPost)
+	mux.Handle("/events/{id}", errors.ErrorHandler(middelware.IsAuth(h.Update, h.userStore))).Methods(http.MethodPatch)
+	mux.Handle("/events/{id}", errors.ErrorHandler(middelware.IsAuth(h.Delete, h.userStore))).Methods(http.MethodDelete)
+	mux.Handle("/events/{id}/restore", errors.ErrorHandler(middelware.IsAuth(h.Restore, h.userStore))).Methods(http.MethodPatch)
 }
 
 func (h *EventHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
-	events, err := h.service.GetAll()
+	events, err := h.service.GetAll(r.Context())
 	if err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
@@ -59,7 +63,7 @@ func (h *EventHandler) Get(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	event, err := h.service.Get(id)
+	event, err := h.service.Get(r.Context(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return errors.HTTPError{
@@ -92,7 +96,7 @@ func (h *EventHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Create(input); err != nil {
+	if err := h.service.Create(r.Context(), input); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -127,7 +131,7 @@ func (h *EventHandler) Update(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Update(id, input); err != nil {
+	if err := h.service.Update(r.Context(), id, input); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -154,7 +158,7 @@ func (h *EventHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Delete(id); err != nil {
+	if err := h.service.Delete(r.Context(), id); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -181,7 +185,7 @@ func (h *EventHandler) Restore(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Restore(id); err != nil {
+	if err := h.service.Restore(r.Context(), id); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,

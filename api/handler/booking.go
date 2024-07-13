@@ -5,32 +5,36 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/cinema-booker/api/middelware"
 	"github.com/cinema-booker/internal/booking"
+	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
 	"github.com/cinema-booker/pkg/json"
 	"github.com/gorilla/mux"
 )
 
 type BookinHandler struct {
-	service booking.BookingService
+	service   booking.BookingService
+	userStore user.UserStore
 }
 
-func NewBookingHandler(service booking.BookingService) *BookinHandler {
+func NewBookingHandler(service booking.BookingService, userStore user.UserStore) *BookinHandler {
 	return &BookinHandler{
-		service: service,
+		service:   service,
+		userStore: userStore,
 	}
 }
 
 func (h *BookinHandler) RegisterRoutes(mux *mux.Router) {
-	mux.Handle("/bookings", errors.ErrorHandler(h.GetAll)).Methods(http.MethodGet)
-	mux.Handle("/bookings/{id}", errors.ErrorHandler(h.Get)).Methods(http.MethodGet)
-	mux.Handle("/bookings", errors.ErrorHandler(h.Create)).Methods(http.MethodPost)
-	mux.Handle("/bookings/{id}", errors.ErrorHandler(h.Update)).Methods(http.MethodPatch)
-	mux.Handle("/bookings/{id}", errors.ErrorHandler(h.Cancel)).Methods(http.MethodDelete)
+	mux.Handle("/bookings", errors.ErrorHandler(middelware.IsAuth(h.GetAll, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/bookings/{id}", errors.ErrorHandler(middelware.IsAuth(h.Get, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/bookings", errors.ErrorHandler(middelware.IsAuth(h.Create, h.userStore))).Methods(http.MethodPost)
+	mux.Handle("/bookings/{id}", errors.ErrorHandler(middelware.IsAuth(h.Update, h.userStore))).Methods(http.MethodPatch)
+	mux.Handle("/bookings/{id}", errors.ErrorHandler(middelware.IsAuth(h.Cancel, h.userStore))).Methods(http.MethodDelete)
 }
 
 func (h *BookinHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
-	bookings, err := h.service.GetAll()
+	bookings, err := h.service.GetAll(r.Context())
 	if err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
@@ -58,7 +62,7 @@ func (h *BookinHandler) Get(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	booking, err := h.service.Get(id)
+	booking, err := h.service.Get(r.Context(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return errors.HTTPError{
@@ -91,7 +95,7 @@ func (h *BookinHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Create(input); err != nil {
+	if err := h.service.Create(r.Context(), input); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -126,7 +130,7 @@ func (h *BookinHandler) Update(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Update(id, input); err != nil {
+	if err := h.service.Update(r.Context(), id, input); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -153,7 +157,7 @@ func (h *BookinHandler) Cancel(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Cancel(id); err != nil {
+	if err := h.service.Cancel(r.Context(), id); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,

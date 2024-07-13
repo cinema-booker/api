@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cinema-booker/api/middelware"
 	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
 	"github.com/cinema-booker/pkg/json"
@@ -14,32 +15,34 @@ import (
 )
 
 type UserHandler struct {
-	service user.UserService
+	service   user.UserService
+	userStore user.UserStore
 }
 
-func NewUserHandler(service user.UserService) *UserHandler {
+func NewUserHandler(service user.UserService, userStore user.UserStore) *UserHandler {
 	return &UserHandler{
-		service: service,
+		service:   service,
+		userStore: userStore,
 	}
 }
 
 func (h *UserHandler) RegisterRoutes(mux *mux.Router) {
-	mux.Handle("/users", errors.ErrorHandler(h.GetAll)).Methods(http.MethodGet)
-	mux.Handle("/users/{id}", errors.ErrorHandler(h.Get)).Methods(http.MethodGet)
-	mux.Handle("/users", errors.ErrorHandler(h.Create)).Methods(http.MethodPost)
-	mux.Handle("/users/{id}", errors.ErrorHandler(h.Update)).Methods(http.MethodPatch)
-	mux.Handle("/users/{id}", errors.ErrorHandler(h.Delete)).Methods(http.MethodDelete)
-	mux.Handle("/users/{id}/restore", errors.ErrorHandler(h.Restore)).Methods(http.MethodPatch)
+	mux.Handle("/users", errors.ErrorHandler(middelware.IsAuth(h.GetAll, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/users/{id}", errors.ErrorHandler(middelware.IsAuth(h.Get, h.userStore))).Methods(http.MethodGet)
+	mux.Handle("/users", errors.ErrorHandler(middelware.IsAuth(h.Create, h.userStore))).Methods(http.MethodPost)
+	mux.Handle("/users/{id}", errors.ErrorHandler(middelware.IsAuth(h.Update, h.userStore))).Methods(http.MethodPatch)
+	mux.Handle("/users/{id}", errors.ErrorHandler(middelware.IsAuth(h.Delete, h.userStore))).Methods(http.MethodDelete)
+	mux.Handle("/users/{id}/restore", errors.ErrorHandler(middelware.IsAuth(h.Restore, h.userStore))).Methods(http.MethodPatch)
 
 	mux.Handle("/sign-up", errors.ErrorHandler(h.SignUp)).Methods(http.MethodPost)
 	mux.Handle("/sign-in", errors.ErrorHandler(h.SignIn)).Methods(http.MethodPost)
 	mux.Handle("/send-password-reset", errors.ErrorHandler(h.SendPasswordReset)).Methods(http.MethodPost)
 	mux.Handle("/reset-password", errors.ErrorHandler(h.ResetPassword)).Methods(http.MethodPost)
-	mux.Handle("/me", errors.ErrorHandler(h.GetMe)).Methods(http.MethodGet)
+	mux.Handle("/me", errors.ErrorHandler(middelware.IsAuth(h.GetMe, h.userStore))).Methods(http.MethodGet)
 }
 
 func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
-	users, err := h.service.GetAll()
+	users, err := h.service.GetAll(r.Context())
 	if err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
@@ -67,7 +70,7 @@ func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	user, err := h.service.Get(id)
+	user, err := h.service.Get(r.Context(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return errors.HTTPError{
@@ -100,7 +103,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Create(input); err != nil {
+	if err := h.service.Create(r.Context(), input); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -135,7 +138,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Update(id, input); err != nil {
+	if err := h.service.Update(r.Context(), id, input); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -162,7 +165,7 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Delete(id); err != nil {
+	if err := h.service.Delete(r.Context(), id); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -189,7 +192,7 @@ func (h *UserHandler) Restore(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Restore(id); err != nil {
+	if err := h.service.Restore(r.Context(), id); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -215,7 +218,7 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.SignUp(input); err != nil {
+	if err := h.service.SignUp(r.Context(), input); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
@@ -241,7 +244,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	response, err := h.service.SignIn(input)
+	response, err := h.service.SignIn(r.Context(), input)
 	if err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
@@ -268,7 +271,7 @@ func (h *UserHandler) SendPasswordReset(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	err := h.service.SendPasswordReset(input)
+	err := h.service.SendPasswordReset(r.Context(), input)
 	if err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
@@ -295,7 +298,7 @@ func (h *UserHandler) ResetPassword(w http.ResponseWriter, r *http.Request) erro
 		}
 	}
 
-	err := h.service.ResetPassword(input)
+	err := h.service.ResetPassword(r.Context(), input)
 	if err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
@@ -330,7 +333,7 @@ func (h *UserHandler) GetMe(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	response, err := h.service.GetMe(tokenParts[1])
+	response, err := h.service.GetMe(r.Context())
 	if err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
