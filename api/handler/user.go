@@ -2,8 +2,10 @@ package handler
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
@@ -31,6 +33,9 @@ func (h *UserHandler) RegisterRoutes(mux *mux.Router) {
 
 	mux.Handle("/sign-up", errors.ErrorHandler(h.SignUp)).Methods(http.MethodPost)
 	mux.Handle("/sign-in", errors.ErrorHandler(h.SignIn)).Methods(http.MethodPost)
+	mux.Handle("/send-password-reset", errors.ErrorHandler(h.SendPasswordReset)).Methods(http.MethodPost)
+	mux.Handle("/reset-password", errors.ErrorHandler(h.ResetPassword)).Methods(http.MethodPost)
+	mux.Handle("/me", errors.ErrorHandler(h.GetMe)).Methods(http.MethodGet)
 }
 
 func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
@@ -236,7 +241,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	token, err := h.service.SignIn(input)
+	response, err := h.service.SignIn(input)
 	if err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
@@ -244,7 +249,96 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := json.Write(w, http.StatusOK, map[string]string{"token": token}); err != nil {
+	if err := json.Write(w, http.StatusOK, response); err != nil {
+		return errors.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	return nil
+}
+
+func (h *UserHandler) SendPasswordReset(w http.ResponseWriter, r *http.Request) error {
+	var input map[string]interface{}
+	if err := json.Parse(r, &input); err != nil {
+		return errors.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	err := h.service.SendPasswordReset(input)
+	if err != nil {
+		return errors.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	if err := json.Write(w, http.StatusOK, nil); err != nil {
+		return errors.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	return nil
+}
+
+func (h *UserHandler) ResetPassword(w http.ResponseWriter, r *http.Request) error {
+	var input map[string]interface{}
+	if err := json.Parse(r, &input); err != nil {
+		return errors.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	err := h.service.ResetPassword(input)
+	if err != nil {
+		return errors.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	if err := json.Write(w, http.StatusOK, nil); err != nil {
+		return errors.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	return nil
+}
+
+func (h *UserHandler) GetMe(w http.ResponseWriter, r *http.Request) error {
+	token := r.Header.Get("Authorization")
+	if token == "" {
+		return errors.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  fmt.Errorf("missing token"),
+		}
+	}
+
+	tokenParts := strings.Split(token, " ")
+	if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+		return errors.HTTPError{
+			Code: http.StatusBadRequest,
+			Err:  fmt.Errorf("invalid token format"),
+		}
+	}
+
+	response, err := h.service.GetMe(tokenParts[1])
+	if err != nil {
+		return errors.HTTPError{
+			Code: http.StatusInternalServerError,
+			Err:  err,
+		}
+	}
+
+	if err := json.Write(w, http.StatusOK, response); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,
