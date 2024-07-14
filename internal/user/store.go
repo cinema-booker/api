@@ -10,6 +10,7 @@ import (
 type UserStore interface {
 	FindAll(pagination map[string]int) ([]User, error)
 	FindById(id int) (User, error)
+	FindMeById(id int) (UserBasic, error)
 	FindByEmail(email string) (User, error)
 	Create(input map[string]interface{}) error
 	Update(id int, input map[string]interface{}) error
@@ -38,6 +39,24 @@ func (s *Store) FindAll(pagination map[string]int) ([]User, error) {
 func (s *Store) FindById(id int) (User, error) {
 	user := User{}
 	query := "SELECT * FROM users WHERE id=$1"
+	err := s.db.Get(&user, query, id)
+
+	return user, err
+}
+
+func (s *Store) FindMeById(id int) (UserBasic, error) {
+	user := UserBasic{}
+	query := `
+		SELECT 
+      u.id AS id,
+			u.name AS name,
+			u.email AS email,
+			u.role AS role,
+      c.id AS cinema_id
+    FROM users u
+    LEFT JOIN cinemas c ON c.user_id = u.id
+    WHERE u.id=$1
+	`
 	err := s.db.Get(&user, query, id)
 
 	return user, err

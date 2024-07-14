@@ -56,7 +56,6 @@ func (s *Store) FindById(id int) (CinemaWithRooms, error) {
       c.id AS id,
       c.name AS name,
       c.description AS description,
-			c.deleted_at AS deleted_at,
       a.id AS "address.id",
       a.address AS "address.address",
       a.longitude AS "address.longitude",

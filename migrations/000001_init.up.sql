@@ -62,21 +62,31 @@ CREATE TABLE "movies" (
 
 CREATE TABLE "events" (
   "id" SERIAL PRIMARY KEY,
-  "room_id" INTEGER NOT NULL REFERENCES "rooms"("id"),
+  "cinema_id" INTEGER NOT NULL REFERENCES "cinemas"("id"),
   "movie_id" INTEGER NOT NULL REFERENCES "movies"("id"),
+  "deleted_at" TIMESTAMP
+);
+
+-- Table: sessions
+
+CREATE TABLE "sessions" (
+  "id" SERIAL PRIMARY KEY,
+  "room_id" INTEGER NOT NULL REFERENCES "rooms"("id"),
+  "event_id" INTEGER NOT NULL REFERENCES "events"("id"),
   "price" INTEGER NOT NULL DEFAULT 0,
   "starts_at" TIMESTAMP NOT NULL,
-  "ends_at" TIMESTAMP NOT NULL,
   "deleted_at" TIMESTAMP
 );
 
 -- Table: bookings
 
+CREATE TYPE bookings_status_enum AS ENUM ('PENDING', 'CONFIRMED', 'CANCELED');
+
 CREATE TABLE "bookings" (
   "id" SERIAL PRIMARY KEY,
   "user_id" INTEGER NOT NULL REFERENCES "users"("id"),
-  "event_id" INTEGER NOT NULL REFERENCES "events"("id"),
+  "session_id" INTEGER NOT NULL REFERENCES "sessions"("id"),
   "place" VARCHAR(255) NOT NULL,
-  "canceled_at" TIMESTAMP,
-  UNIQUE ("user_id", "event_id", "place")
+  "status" bookings_status_enum NOT NULL DEFAULT 'PENDING',
+  UNIQUE ("user_id", "session_id", "place")
 );

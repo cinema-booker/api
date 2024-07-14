@@ -2,14 +2,16 @@ package booking
 
 import (
 	"context"
+	"fmt"
 	"time"
+
+	"github.com/cinema-booker/internal/constants"
 )
 
 type BookingService interface {
-	GetAll(ctx context.Context) ([]Booking, error)
+	GetAll(ctx context.Context, pagination map[string]int) ([]Booking, error)
 	Get(ctx context.Context, id int) (Booking, error)
 	Create(ctx context.Context, input map[string]interface{}) error
-	Update(ctx context.Context, id int, input map[string]interface{}) error
 	Cancel(ctx context.Context, id int) error
 }
 
@@ -23,8 +25,8 @@ func NewService(store BookingStore) *Service {
 	}
 }
 
-func (s *Service) GetAll(ctx context.Context) ([]Booking, error) {
-	return s.store.FindAll()
+func (s *Service) GetAll(ctx context.Context, pagination map[string]int) ([]Booking, error) {
+	return s.store.FindAll(pagination)
 }
 
 func (s *Service) Get(ctx context.Context, id int) (Booking, error) {
@@ -32,11 +34,50 @@ func (s *Service) Get(ctx context.Context, id int) (Booking, error) {
 }
 
 func (s *Service) Create(ctx context.Context, input map[string]interface{}) error {
-	return s.store.Create(input)
-}
+	userId, ok := ctx.Value(constants.UserIDKey).(int)
+	if !ok {
+		return fmt.Errorf("unauthorized")
+	}
 
-func (s *Service) Update(ctx context.Context, id int, input map[string]interface{}) error {
-	return s.store.Update(id, input)
+	seatsInterface, ok := input["seats"].([]interface{})
+	if !ok {
+		return fmt.Errorf("invalid seats input")
+	}
+	seats := make([]string, len(seatsInterface))
+	for i, v := range seatsInterface {
+		seats[i], ok = v.(string)
+		if !ok {
+			return fmt.Errorf("invalid seat value at index %d", i)
+		}
+	}
+
+	sessionIdFloat, ok := input["session_id"].(float64)
+	if !ok {
+		return fmt.Errorf("invalid session_id input")
+	}
+	sessionId := int(sessionIdFloat)
+
+	count, err := s.store.VerifySeatsCount(sessionId, seats)
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return fmt.Errorf("seats already booked")
+	}
+
+	for _, seat := range seats {
+		err := s.store.Create(map[string]interface{}{
+			"session_id": input["session_id"],
+			"place":      seat,
+			"user_id":    userId,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+
 }
 
 func (s *Service) Cancel(ctx context.Context, id int) error {

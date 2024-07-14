@@ -31,13 +31,16 @@ func (s *Store) FindAll(pagination map[string]int) ([]Event, error) {
 	query := `
     SELECT 
       e.id AS id,
-      e.price AS price,
-      e.starts_at AS starts_at,
-			e.ends_at AS ends_at,
 			e.deleted_at AS deleted_at,
-      r.id AS "room.id",
-      r.number AS "room.number",
-      r.type AS "room.type",
+			c.id AS "cinema.id",
+			c.user_id AS "cinema.user_id",
+      c.name AS "cinema.name",
+      c.description AS "cinema.description",
+			c.deleted_at AS "cinema.deleted_at",
+			a.id AS "cinema.address.id",
+			a.address AS "cinema.address.address",
+			a.longitude AS "cinema.address.longitude",
+			a.latitude AS "cinema.address.latitude",
       m.id AS "movie.id",
       m.title AS "movie.title",
       m.description AS "movie.description",
@@ -45,7 +48,8 @@ func (s *Store) FindAll(pagination map[string]int) ([]Event, error) {
       m.poster AS "movie.poster",
       m.backdrop AS "movie.backdrop"
     FROM events e
-    LEFT JOIN rooms r ON e.room_id = r.id
+    LEFT JOIN cinemas c ON e.cinema_id = c.id
+    LEFT JOIN addresses a ON c.address_id = a.id
     LEFT JOIN movies m ON e.movie_id = m.id
 		LIMIT $1 OFFSET $2
   `
@@ -59,23 +63,45 @@ func (s *Store) FindById(id int) (Event, error) {
 	query := `
     SELECT 
       e.id AS id,
-      e.price AS price,
-      e.starts_at AS starts_at,
-			e.ends_at AS ends_at,
 			e.deleted_at AS deleted_at,
-      r.id AS "room.id",
-      r.number AS "room.number",
-      r.type AS "room.type",
+			c.id AS "cinema.id",
+			c.user_id AS "cinema.user_id",
+      c.name AS "cinema.name",
+      c.description AS "cinema.description",
+			c.deleted_at AS "cinema.deleted_at",
+			a.id AS "cinema.address.id",
+			a.address AS "cinema.address.address",
+			a.longitude AS "cinema.address.longitude",
+			a.latitude AS "cinema.address.latitude",
       m.id AS "movie.id",
       m.title AS "movie.title",
       m.description AS "movie.description",
       m.language AS "movie.language",
       m.poster AS "movie.poster",
-      m.backdrop AS "movie.backdrop"
+      m.backdrop AS "movie.backdrop",
+			COALESCE(
+        json_agg(
+          json_build_object(
+            'id', s.id,
+            'price', s.price,
+            'starts_at', s.starts_at,
+						'room', json_build_object(
+							'id', r.id,
+							'number', r.number,
+							'type', r.type
+						)
+          )
+        ) FILTER (WHERE s.id IS NOT NULL),
+        '[]'
+      ) AS sessions
     FROM events e
-    LEFT JOIN rooms r ON e.room_id = r.id
+    LEFT JOIN sessions s ON s.event_id = e.id
+    LEFT JOIN rooms r ON s.room_id = r.id
+		LEFT JOIN cinemas c ON e.cinema_id = c.id
+		LEFT JOIN addresses a ON c.address_id = a.id
     LEFT JOIN movies m ON e.movie_id = m.id
 		WHERE e.id=$1
+		GROUP BY e.id, c.id, a.id, m.id
   `
 	err := s.db.Get(&event, query, id)
 
@@ -96,11 +122,11 @@ func (s *Store) Create(input map[string]interface{}) error {
 	}()
 
 	movie := Movie{
-		Title:       input["movie"].(map[string]interface{})["title"].(string),
-		Description: input["movie"].(map[string]interface{})["overview"].(string),
-		Language:    input["movie"].(map[string]interface{})["language"].(string),
-		Poster:      input["movie"].(map[string]interface{})["poster"].(string),
-		Backdrop:    input["movie"].(map[string]interface{})["backdrop"].(string),
+		Title:       input["movie_title"].(string),
+		Description: input["movie_description"].(string),
+		Language:    input["movie_language"].(string),
+		Poster:      input["movie_poster"].(string),
+		Backdrop:    input["movie_backdrop"].(string),
 	}
 
 	var movieId int
@@ -110,8 +136,8 @@ func (s *Store) Create(input map[string]interface{}) error {
 		return err
 	}
 
-	query := "INSERT INTO events (movie_id, room_id, price, starts_at, ends_at) VALUES ($1, $2, $3, $4, $5)"
-	_, err = tx.Exec(query, movieId, input["room_id"], input["price"], input["starts_at"], input["ends_at"])
+	query := "INSERT INTO events (cinema_id, movie_id) VALUES ($1, $2)"
+	_, err = tx.Exec(query, input["cinema_id"], movieId)
 
 	return err
 }

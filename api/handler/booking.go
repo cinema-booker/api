@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/cinema-booker/api/middleware"
+	"github.com/cinema-booker/api/utils"
 	"github.com/cinema-booker/internal/booking"
 	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
@@ -29,12 +30,13 @@ func (h *BookinHandler) RegisterRoutes(mux *mux.Router) {
 	mux.Handle("/bookings", errors.ErrorHandler(middleware.IsAuth(h.GetAll, h.userStore))).Methods(http.MethodGet)
 	mux.Handle("/bookings/{id}", errors.ErrorHandler(middleware.IsAuth(h.Get, h.userStore))).Methods(http.MethodGet)
 	mux.Handle("/bookings", errors.ErrorHandler(middleware.IsAuth(h.Create, h.userStore))).Methods(http.MethodPost)
-	mux.Handle("/bookings/{id}", errors.ErrorHandler(middleware.IsAuth(h.Update, h.userStore))).Methods(http.MethodPatch)
 	mux.Handle("/bookings/{id}", errors.ErrorHandler(middleware.IsAuth(h.Cancel, h.userStore))).Methods(http.MethodDelete)
 }
 
 func (h *BookinHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
-	bookings, err := h.service.GetAll(r.Context())
+	pagination := utils.GetPaginationQueryParams(r)
+
+	bookings, err := h.service.GetAll(r.Context(), pagination)
 	if err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
@@ -103,41 +105,6 @@ func (h *BookinHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if err := json.Write(w, http.StatusCreated, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
-	}
-
-	return nil
-}
-
-func (h *BookinHandler) Update(w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
-	}
-
-	var input map[string]interface{}
-	if err := json.Parse(r, &input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
-	}
-
-	if err := h.service.Update(r.Context(), id, input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
-	}
-
-	if err := json.Write(w, http.StatusAccepted, nil); err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
 			Err:  err,

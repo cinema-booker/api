@@ -16,7 +16,7 @@ import (
 
 type UserService interface {
 	GetAll(ctx context.Context, pagination map[string]int) ([]User, error)
-	Get(ctx context.Context, id int) (User, error)
+	Get(ctx context.Context, id int) (UserBasic, error)
 	Create(ctx context.Context, input map[string]interface{}) error
 	Update(ctx context.Context, id int, input map[string]interface{}) error
 	Delete(ctx context.Context, id int) error
@@ -43,8 +43,8 @@ func (s *Service) GetAll(ctx context.Context, pagination map[string]int) ([]User
 	return s.store.FindAll(pagination)
 }
 
-func (s *Service) Get(ctx context.Context, id int) (User, error) {
-	return s.store.FindById(id)
+func (s *Service) Get(ctx context.Context, id int) (UserBasic, error) {
+	return s.store.FindMeById(id)
 }
 
 func (s *Service) Create(ctx context.Context, input map[string]interface{}) error {
@@ -187,15 +187,16 @@ func (s *Service) GetMe(ctx context.Context) (map[string]interface{}, error) {
 		return nil, fmt.Errorf("Unauthorized")
 	}
 
-	user, err := s.store.FindById(userId)
+	user, err := s.store.FindMeById(userId)
 	if err != nil {
 		return nil, err
 	}
 
 	return map[string]interface{}{
-		"id":    user.Id,
-		"name":  user.Name,
-		"email": user.Email,
-		"role":  user.Role,
+		"id":        user.Id,
+		"name":      user.Name,
+		"email":     user.Email,
+		"role":      user.Role,
+		"cinema_id": user.CinemaId,
 	}, nil
 }

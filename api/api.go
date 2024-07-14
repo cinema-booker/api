@@ -11,6 +11,7 @@ import (
 	"github.com/cinema-booker/internal/event"
 	"github.com/cinema-booker/internal/movie"
 	"github.com/cinema-booker/internal/room"
+	"github.com/cinema-booker/internal/session"
 	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/third_party/tmdb"
 	"github.com/gorilla/mux"
@@ -51,9 +52,11 @@ func (s *APIServer) Start() error {
 	cinemaHandler := handler.NewCinemaHandler(cinemaService, roomService, userStore)
 	cinemaHandler.RegisterRoutes(router)
 
+	sessionStore := session.NewStore(s.db)
+	sessionService := session.NewService(sessionStore)
 	eventStore := event.NewStore(s.db)
 	eventService := event.NewService(eventStore, tmdbService)
-	eventHandler := handler.NewEventHandler(eventService, userStore)
+	eventHandler := handler.NewEventHandler(eventService, sessionService, userStore)
 	eventHandler.RegisterRoutes(router)
 
 	bookingStore := booking.NewStore(s.db)

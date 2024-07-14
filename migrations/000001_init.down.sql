@@ -1,5 +1,9 @@
 -- Table: bookings
 DROP TABLE IF EXISTS "bookings";
+DROP TYPE IF EXISTS bookings_status_enum;
+
+-- Table: sessions
+DROP TABLE IF EXISTS "sessions";
 
 -- Table: events
 DROP TABLE IF EXISTS "events";
