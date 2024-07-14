@@ -43,6 +43,7 @@ CREATE TABLE "rooms" (
   "cinema_id" INTEGER NOT NULL REFERENCES "cinemas"("id"),
   "number" VARCHAR(255) NOT NULL,
   "type" rooms_type_enum NOT NULL,
+  "deleted_at" TIMESTAMP,
   UNIQUE ("cinema_id", "number")
 );
 

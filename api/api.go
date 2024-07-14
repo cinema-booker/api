@@ -44,15 +44,12 @@ func (s *APIServer) Start() error {
 	userHandler := handler.NewUserHandler(userService, userStore)
 	userHandler.RegisterRoutes(router)
 
-	cinemaStore := cinema.NewStore(s.db)
-	cinemaService := cinema.NewService(cinemaStore)
-	cinemaHandler := handler.NewCinemaHandler(cinemaService, userStore)
-	cinemaHandler.RegisterRoutes(router)
-
 	roomStore := room.NewStore(s.db)
 	roomService := room.NewService(roomStore)
-	roomHandler := handler.NewRoomHandler(roomService, userStore)
-	roomHandler.RegisterRoutes(router)
+	cinemaStore := cinema.NewStore(s.db)
+	cinemaService := cinema.NewService(cinemaStore)
+	cinemaHandler := handler.NewCinemaHandler(cinemaService, roomService, userStore)
+	cinemaHandler.RegisterRoutes(router)
 
 	eventStore := event.NewStore(s.db)
 	eventService := event.NewService(eventStore, tmdbService)

@@ -1,11 +1,13 @@
 package room
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type RoomService interface {
-	Create(ctx context.Context, input map[string]interface{}) error
-	Update(ctx context.Context, id int, input map[string]interface{}) error
-	Delete(ctx context.Context, id int) error
+	Create(ctx context.Context, cinemaId int, input map[string]interface{}) error
+	Delete(ctx context.Context, cinemaId int, id int) error
 }
 
 type Service struct {
@@ -18,19 +20,18 @@ func NewService(store RoomStore) *Service {
 	}
 }
 
-func (s *Service) Create(ctx context.Context, input map[string]interface{}) error {
+func (s *Service) Create(ctx context.Context, cinemaId int, input map[string]interface{}) error {
+	input["cinema_id"] = cinemaId
 	return s.store.Create(input)
 }
 
-func (s *Service) Update(ctx context.Context, id int, input map[string]interface{}) error {
-	return s.store.Update(id, input)
-}
-
-func (s *Service) Delete(ctx context.Context, id int) error {
+func (s *Service) Delete(ctx context.Context, cinemaId int, id int) error {
 	_, err := s.store.FindById(id)
 	if err != nil {
 		return err
 	}
 
-	return s.store.Delete(id)
+	return s.store.Update(id, map[string]interface{}{
+		"deleted_at": time.Now(),
+	})
 }
