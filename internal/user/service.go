@@ -15,7 +15,7 @@ import (
 )
 
 type UserService interface {
-	GetAll(ctx context.Context) ([]User, error)
+	GetAll(ctx context.Context, pagination map[string]int) ([]User, error)
 	Get(ctx context.Context, id int) (User, error)
 	Create(ctx context.Context, input map[string]interface{}) error
 	Update(ctx context.Context, id int, input map[string]interface{}) error
@@ -39,8 +39,8 @@ func NewService(store UserStore) *Service {
 	}
 }
 
-func (s *Service) GetAll(ctx context.Context) ([]User, error) {
-	return s.store.FindAll()
+func (s *Service) GetAll(ctx context.Context, pagination map[string]int) ([]User, error) {
+	return s.store.FindAll(pagination)
 }
 
 func (s *Service) Get(ctx context.Context, id int) (User, error) {

@@ -7,12 +7,6 @@ import (
 	"time"
 )
 
-const (
-	RoomTypeSmall  = "SMALL"
-	RoomTypeMedium = "MEDIUM"
-	RoomTypeLarge  = "LARGE"
-)
-
 type Address struct {
 	Id        int     `json:"id" db:"id"`
 	Address   string  `json:"address" db:"address"`

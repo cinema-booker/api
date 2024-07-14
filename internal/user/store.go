@@ -8,7 +8,7 @@ import (
 )
 
 type UserStore interface {
-	FindAll() ([]User, error)
+	FindAll(pagination map[string]int) ([]User, error)
 	FindById(id int) (User, error)
 	FindByEmail(email string) (User, error)
 	Create(input map[string]interface{}) error
@@ -25,10 +25,12 @@ func NewStore(db *sqlx.DB) *Store {
 	}
 }
 
-func (s *Store) FindAll() ([]User, error) {
+func (s *Store) FindAll(pagination map[string]int) ([]User, error) {
 	users := []User{}
-	query := "SELECT * FROM users"
-	err := s.db.Select(&users, query)
+
+	offset := (pagination["page"] - 1) * pagination["limit"]
+	query := "SELECT * FROM users LIMIT $1 OFFSET $2"
+	err := s.db.Select(&users, query, pagination["limit"], offset)
 
 	return users, err
 }

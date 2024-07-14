@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/cinema-booker/api/middleware"
+	"github.com/cinema-booker/api/utils"
 	"github.com/cinema-booker/internal/user"
 	"github.com/cinema-booker/pkg/errors"
 	"github.com/cinema-booker/pkg/json"
@@ -42,7 +43,9 @@ func (h *UserHandler) RegisterRoutes(mux *mux.Router) {
 }
 
 func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
-	users, err := h.service.GetAll(r.Context())
+	pagination := utils.GetPaginationQueryParams(r)
+
+	users, err := h.service.GetAll(r.Context(), pagination)
 	if err != nil {
 		return errors.HTTPError{
 			Code: http.StatusInternalServerError,
