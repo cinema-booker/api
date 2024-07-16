@@ -12,3 +12,5 @@ require (
 )
 
 require github.com/resend/resend-go/v2 v2.10.0
+
+require github.com/stripe/stripe-go/v79 v79.3.0 // indirect

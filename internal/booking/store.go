@@ -9,7 +9,7 @@ import (
 )
 
 type BookingStore interface {
-	FindAll(pagination map[string]int) ([]Booking, error)
+	FindAll(pagination map[string]int, search string) ([]Booking, error)
 	FindById(id int) (Booking, error)
 	VerifySeatsCount(sessionId int, seats []string) (int, error)
 	Create(input map[string]interface{}) error
@@ -26,7 +26,7 @@ func NewStore(db *sqlx.DB) *Store {
 	}
 }
 
-func (s *Store) FindAll(pagination map[string]int) ([]Booking, error) {
+func (s *Store) FindAll(pagination map[string]int, search string) ([]Booking, error) {
 	bookings := []Booking{}
 
 	offset := (pagination["page"] - 1) * pagination["limit"]
@@ -67,9 +67,14 @@ func (s *Store) FindAll(pagination map[string]int) ([]Booking, error) {
     LEFT JOIN cinemas c ON e.cinema_id = c.id
     LEFT JOIN movies m ON e.movie_id = m.id
     LEFT JOIN addresses a ON c.address_id = a.id
-		LIMIT $1 OFFSET $2
+		WHERE (
+			u.name ILIKE '%' || $1 || '%'
+			OR c.name ILIKE '%' || $1 || '%'
+			OR m.title ILIKE '%' || $1 || '%'
+		)
+		LIMIT $2 OFFSET $3
 	`
-	err := s.db.Select(&bookings, query, pagination["limit"], offset)
+	err := s.db.Select(&bookings, query, search, pagination["limit"], offset)
 
 	return bookings, err
 }

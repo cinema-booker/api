@@ -34,8 +34,9 @@ func (h *BookinHandler) RegisterRoutes(mux *mux.Router) {
 
 func (h *BookinHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 	pagination := utils.GetPaginationQueryParams(r)
+	search := r.URL.Query().Get("search")
 
-	bookings, err := h.service.GetAll(r.Context(), pagination)
+	bookings, err := h.service.GetAll(r.Context(), pagination, search)
 	if err != nil {
 		return err
 	}
@@ -84,11 +85,12 @@ func (h *BookinHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := h.service.Create(r.Context(), input); err != nil {
+	response, err := h.service.Create(r.Context(), input)
+	if err != nil {
 		return err
 	}
 
-	if err := json.Write(w, http.StatusCreated, nil); err != nil {
+	if err := json.Write(w, http.StatusCreated, response); err != nil {
 		return errors.CustomError{
 			Key: errors.InternalServerError,
 			Err: err,

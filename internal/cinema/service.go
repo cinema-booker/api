@@ -11,7 +11,7 @@ import (
 )
 
 type CinemaService interface {
-	GetAll(ctx context.Context, pagination map[string]int) ([]Cinema, error)
+	GetAll(ctx context.Context, pagination map[string]int, search string) ([]Cinema, error)
 	Get(ctx context.Context, id int) (CinemaWithRooms, error)
 	Create(ctx context.Context, input map[string]interface{}) error
 	Update(ctx context.Context, id int, input map[string]interface{}) error
@@ -29,8 +29,8 @@ func NewService(store CinemaStore) *Service {
 	}
 }
 
-func (s *Service) GetAll(ctx context.Context, pagination map[string]int) ([]Cinema, error) {
-	cinemas, err := s.store.FindAll(pagination)
+func (s *Service) GetAll(ctx context.Context, pagination map[string]int, search string) ([]Cinema, error) {
+	cinemas, err := s.store.FindAll(pagination, search)
 	if err != nil {
 		return nil, errors.CustomError{
 			Key: errors.InternalServerError,

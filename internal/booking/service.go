@@ -4,31 +4,33 @@ import (
 	"context"
 	"database/sql"
 	goErrors "errors"
-	"time"
 
 	"github.com/cinema-booker/internal/constants"
+	"github.com/cinema-booker/internal/session"
 	"github.com/cinema-booker/pkg/errors"
 )
 
 type BookingService interface {
-	GetAll(ctx context.Context, pagination map[string]int) ([]Booking, error)
+	GetAll(ctx context.Context, pagination map[string]int, search string) ([]Booking, error)
 	Get(ctx context.Context, id int) (Booking, error)
-	Create(ctx context.Context, input map[string]interface{}) error
+	Create(ctx context.Context, input map[string]interface{}) (map[string]interface{}, error)
 	Cancel(ctx context.Context, id int) error
 }
 
 type Service struct {
-	store BookingStore
+	store        BookingStore
+	sessionStore session.SessionStore
 }
 
-func NewService(store BookingStore) *Service {
+func NewService(store BookingStore, sessionStore session.SessionStore) *Service {
 	return &Service{
-		store: store,
+		store:        store,
+		sessionStore: sessionStore,
 	}
 }
 
-func (s *Service) GetAll(ctx context.Context, pagination map[string]int) ([]Booking, error) {
-	bookings, err := s.store.FindAll(pagination)
+func (s *Service) GetAll(ctx context.Context, pagination map[string]int, search string) ([]Booking, error) {
+	bookings, err := s.store.FindAll(pagination, search)
 	if err != nil {
 		return nil, errors.CustomError{
 			Key: errors.InternalServerError,
@@ -57,10 +59,10 @@ func (s *Service) Get(ctx context.Context, id int) (Booking, error) {
 	return booking, nil
 }
 
-func (s *Service) Create(ctx context.Context, input map[string]interface{}) error {
+func (s *Service) Create(ctx context.Context, input map[string]interface{}) (map[string]interface{}, error) {
 	userId, ok := ctx.Value(constants.UserIDKey).(int)
 	if !ok {
-		return errors.CustomError{
+		return nil, errors.CustomError{
 			Key: errors.Unauthorized,
 			Err: goErrors.New("user id not authenticated"),
 		}
@@ -68,7 +70,7 @@ func (s *Service) Create(ctx context.Context, input map[string]interface{}) erro
 
 	seatsInterface, ok := input["seats"].([]interface{})
 	if !ok {
-		return errors.CustomError{
+		return nil, errors.CustomError{
 			Key: errors.BadRequest,
 			Err: goErrors.New("invalid seats input"),
 		}
@@ -77,7 +79,7 @@ func (s *Service) Create(ctx context.Context, input map[string]interface{}) erro
 	for i, v := range seatsInterface {
 		seats[i], ok = v.(string)
 		if !ok {
-			return errors.CustomError{
+			return nil, errors.CustomError{
 				Key: errors.BadRequest,
 				Err: goErrors.New("invalid seats input"),
 			}
@@ -86,7 +88,7 @@ func (s *Service) Create(ctx context.Context, input map[string]interface{}) erro
 
 	sessionIdFloat, ok := input["session_id"].(float64)
 	if !ok {
-		return errors.CustomError{
+		return nil, errors.CustomError{
 			Key: errors.BadRequest,
 			Err: goErrors.New("invalid session id input"),
 		}
@@ -95,13 +97,13 @@ func (s *Service) Create(ctx context.Context, input map[string]interface{}) erro
 
 	count, err := s.store.VerifySeatsCount(sessionId, seats)
 	if err != nil {
-		return errors.CustomError{
+		return nil, errors.CustomError{
 			Key: errors.InternalServerError,
 			Err: err,
 		}
 	}
 	if count > 0 {
-		return errors.CustomError{
+		return nil, errors.CustomError{
 			Key: errors.BadRequest,
 			Err: goErrors.New("seats already booked"),
 		}
@@ -114,14 +116,26 @@ func (s *Service) Create(ctx context.Context, input map[string]interface{}) erro
 			"user_id":    userId,
 		})
 		if err != nil {
-			return errors.CustomError{
+			return nil, errors.CustomError{
 				Key: errors.InternalServerError,
 				Err: err,
 			}
 		}
 	}
 
-	return nil
+	session, err := s.sessionStore.FindById(sessionId)
+	if err != nil {
+		return nil, errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	return map[string]interface{}{
+		"session_id": session.Id,
+		"seats":      seats,
+		"price":      int64(session.Price),
+	}, nil
 }
 
 func (s *Service) Cancel(ctx context.Context, id int) error {
@@ -140,7 +154,7 @@ func (s *Service) Cancel(ctx context.Context, id int) error {
 	}
 
 	err = s.store.Update(id, map[string]interface{}{
-		"canceled_at": time.Now(),
+		"status": constants.BookingStatusCanceled,
 	})
 	if err != nil {
 		return errors.CustomError{

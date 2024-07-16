@@ -33,7 +33,9 @@ func (s *APIServer) Start() error {
 	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
-	}).Methods("GET")
+	}).Methods(http.MethodGet)
+
+	router.HandleFunc("/webhook", handler.HandleWebhook).Methods(http.MethodPost)
 
 	userStore := user.NewStore(s.db)
 	userService := user.NewService(userStore)
@@ -55,7 +57,7 @@ func (s *APIServer) Start() error {
 	eventHandler.RegisterRoutes(router)
 
 	bookingStore := booking.NewStore(s.db)
-	bookingService := booking.NewService(bookingStore)
+	bookingService := booking.NewService(bookingStore, sessionStore)
 	bookingHandler := handler.NewBookingHandler(bookingService, userStore)
 	bookingHandler.RegisterRoutes(router)
 

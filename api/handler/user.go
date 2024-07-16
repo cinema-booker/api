@@ -41,8 +41,9 @@ func (h *UserHandler) RegisterRoutes(mux *mux.Router) {
 
 func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 	pagination := utils.GetPaginationQueryParams(r)
+	search := r.URL.Query().Get("search")
 
-	users, err := h.service.GetAll(r.Context(), pagination)
+	users, err := h.service.GetAll(r.Context(), pagination, search)
 	if err != nil {
 		return err
 	}

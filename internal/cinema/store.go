@@ -8,7 +8,7 @@ import (
 )
 
 type CinemaStore interface {
-	FindAll(pagination map[string]int) ([]Cinema, error)
+	FindAll(pagination map[string]int, search string) ([]Cinema, error)
 	FindById(id int) (CinemaWithRooms, error)
 	Create(input map[string]interface{}) error
 	Update(id int, input map[string]interface{}) error
@@ -24,7 +24,7 @@ func NewStore(db *sqlx.DB) *Store {
 	}
 }
 
-func (s *Store) FindAll(pagination map[string]int) ([]Cinema, error) {
+func (s *Store) FindAll(pagination map[string]int, search string) ([]Cinema, error) {
 	cinemas := []Cinema{}
 
 	offset := (pagination["page"] - 1) * pagination["limit"]
@@ -42,9 +42,13 @@ func (s *Store) FindAll(pagination map[string]int) ([]Cinema, error) {
     FROM cinemas c
     JOIN addresses a ON c.address_id = a.id
 		WHERE c.deleted_at IS NULL
-		LIMIT $1 OFFSET $2
+		AND (
+			c.name ILIKE '%' || $1 || '%'
+			OR c.description ILIKE '%' || $1 || '%'
+		)
+		LIMIT $2 OFFSET $3
   `
-	err := s.db.Select(&cinemas, query, pagination["limit"], offset)
+	err := s.db.Select(&cinemas, query, search, pagination["limit"], offset)
 
 	return cinemas, err
 }

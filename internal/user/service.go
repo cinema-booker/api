@@ -18,7 +18,7 @@ import (
 )
 
 type UserService interface {
-	GetAll(ctx context.Context, pagination map[string]int) ([]User, error)
+	GetAll(ctx context.Context, pagination map[string]int, search string) ([]User, error)
 	Get(ctx context.Context, id int) (UserBasic, error)
 	Create(ctx context.Context, input map[string]interface{}) error
 	Update(ctx context.Context, id int, input map[string]interface{}) error
@@ -42,8 +42,8 @@ func NewService(store UserStore) *Service {
 	}
 }
 
-func (s *Service) GetAll(ctx context.Context, pagination map[string]int) ([]User, error) {
-	users, err := s.store.FindAll(pagination)
+func (s *Service) GetAll(ctx context.Context, pagination map[string]int, search string) ([]User, error) {
+	users, err := s.store.FindAll(pagination, search)
 	if err != nil {
 		return nil, errors.CustomError{
 			Key: errors.InternalServerError,

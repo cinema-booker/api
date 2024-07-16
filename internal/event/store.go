@@ -8,7 +8,7 @@ import (
 )
 
 type EventStore interface {
-	FindAll(pagination map[string]int) ([]EventBasic, error)
+	FindAll(pagination map[string]int, search string) ([]EventBasic, error)
 	FindById(id int) (Event, error)
 	Create(input map[string]interface{}) error
 	Update(id int, input map[string]interface{}) error
@@ -24,7 +24,7 @@ func NewStore(db *sqlx.DB) *Store {
 	}
 }
 
-func (s *Store) FindAll(pagination map[string]int) ([]EventBasic, error) {
+func (s *Store) FindAll(pagination map[string]int, search string) ([]EventBasic, error) {
 	events := []EventBasic{}
 
 	offset := (pagination["page"] - 1) * pagination["limit"]
@@ -51,9 +51,13 @@ func (s *Store) FindAll(pagination map[string]int) ([]EventBasic, error) {
     LEFT JOIN cinemas c ON e.cinema_id = c.id
     LEFT JOIN addresses a ON c.address_id = a.id
     LEFT JOIN movies m ON e.movie_id = m.id
-		LIMIT $1 OFFSET $2
+		WHERE (
+			c.name ILIKE '%' || $1 || '%'
+			OR m.title ILIKE '%' || $1 || '%'
+		)
+		LIMIT $2 OFFSET $3
   `
-	err := s.db.Select(&events, query, pagination["limit"], offset)
+	err := s.db.Select(&events, query, search, pagination["limit"], offset)
 
 	return events, err
 }

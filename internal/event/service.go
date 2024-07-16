@@ -10,7 +10,7 @@ import (
 )
 
 type EventService interface {
-	GetAll(ctx context.Context, pagination map[string]int) ([]EventBasic, error)
+	GetAll(ctx context.Context, pagination map[string]int, search string) ([]EventBasic, error)
 	Get(ctx context.Context, id int) (Event, error)
 	Create(ctx context.Context, input map[string]interface{}) error
 	Update(ctx context.Context, id int, input map[string]interface{}) error
@@ -28,8 +28,8 @@ func NewService(store EventStore) *Service {
 	}
 }
 
-func (s *Service) GetAll(ctx context.Context, pagination map[string]int) ([]EventBasic, error) {
-	events, err := s.store.FindAll(pagination)
+func (s *Service) GetAll(ctx context.Context, pagination map[string]int, search string) ([]EventBasic, error) {
+	events, err := s.store.FindAll(pagination, search)
 	if err != nil {
 		return nil, errors.CustomError{
 			Key: errors.InternalServerError,
