@@ -23,6 +23,7 @@ type SessionBasic struct {
 	Id       int       `json:"id" db:"id"`
 	Price    int       `json:"price" db:"price"`
 	StartsAt time.Time `json:"starts_at" db:"starts_at"`
+	Seats    []string  `json:"seats"`
 	Room     room.Room `json:"room"`
 }
 
@@ -70,4 +71,11 @@ type Event struct {
 	Cinema    cinema.Cinema `json:"cinema"`
 	Movie     Movie         `json:"movie"`
 	Sessions  SessionArray  `json:"sessions"`
+}
+
+type EventBasic struct {
+	Id        int           `json:"id" db:"id"`
+	DeletedAt *time.Time    `json:"deleted_at" db:"deleted_at"`
+	Cinema    cinema.Cinema `json:"cinema"`
+	Movie     Movie         `json:"movie"`
 }

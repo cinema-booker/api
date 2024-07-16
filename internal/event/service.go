@@ -8,7 +8,7 @@ import (
 )
 
 type EventService interface {
-	GetAll(ctx context.Context, pagination map[string]int) ([]Event, error)
+	GetAll(ctx context.Context, pagination map[string]int) ([]EventBasic, error)
 	Get(ctx context.Context, id int) (Event, error)
 	Create(ctx context.Context, input map[string]interface{}) error
 	Update(ctx context.Context, id int, input map[string]interface{}) error
@@ -28,7 +28,7 @@ func NewService(store EventStore, tmdbService *tmdb.TMDB) *Service {
 	}
 }
 
-func (s *Service) GetAll(ctx context.Context, pagination map[string]int) ([]Event, error) {
+func (s *Service) GetAll(ctx context.Context, pagination map[string]int) ([]EventBasic, error) {
 	return s.store.FindAll(pagination)
 }
 

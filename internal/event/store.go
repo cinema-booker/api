@@ -8,7 +8,7 @@ import (
 )
 
 type EventStore interface {
-	FindAll(pagination map[string]int) ([]Event, error)
+	FindAll(pagination map[string]int) ([]EventBasic, error)
 	FindById(id int) (Event, error)
 	Create(input map[string]interface{}) error
 	Update(id int, input map[string]interface{}) error
@@ -24,8 +24,8 @@ func NewStore(db *sqlx.DB) *Store {
 	}
 }
 
-func (s *Store) FindAll(pagination map[string]int) ([]Event, error) {
-	events := []Event{}
+func (s *Store) FindAll(pagination map[string]int) ([]EventBasic, error) {
+	events := []EventBasic{}
 
 	offset := (pagination["page"] - 1) * pagination["limit"]
 	query := `
@@ -61,47 +61,57 @@ func (s *Store) FindAll(pagination map[string]int) ([]Event, error) {
 func (s *Store) FindById(id int) (Event, error) {
 	event := Event{}
 	query := `
-    SELECT 
-      e.id AS id,
+    WITH booked_seats AS (
+			SELECT
+				s.id AS session_id,
+				json_agg(b.place ORDER BY b.place) AS seats
+			FROM sessions s
+			LEFT JOIN	bookings b
+				ON b.session_id = s.id AND b.status IN ('PENDING', 'CONFIRMED')
+			GROUP BY s.id
+    )
+    SELECT
+			e.id AS id,
 			e.deleted_at AS deleted_at,
 			c.id AS "cinema.id",
 			c.user_id AS "cinema.user_id",
-      c.name AS "cinema.name",
-      c.description AS "cinema.description",
+			c.name AS "cinema.name",
+			c.description AS "cinema.description",
 			c.deleted_at AS "cinema.deleted_at",
 			a.id AS "cinema.address.id",
 			a.address AS "cinema.address.address",
 			a.longitude AS "cinema.address.longitude",
 			a.latitude AS "cinema.address.latitude",
-      m.id AS "movie.id",
-      m.title AS "movie.title",
-      m.description AS "movie.description",
-      m.language AS "movie.language",
-      m.poster AS "movie.poster",
-      m.backdrop AS "movie.backdrop",
+			m.id AS "movie.id",
+			m.title AS "movie.title",
+			m.description AS "movie.description",
+			m.language AS "movie.language",
+			m.poster AS "movie.poster",
+			m.backdrop AS "movie.backdrop",
 			COALESCE(
-        json_agg(
-          json_build_object(
-            'id', s.id,
-            'price', s.price,
-            'starts_at', s.starts_at,
+				json_agg(
+					json_build_object(
+						'id', s.id,
+						'price', s.price,
+						'starts_at', s.starts_at,
+						'seats', COALESCE(bs.seats, '[]'),
 						'room', json_build_object(
 							'id', r.id,
 							'number', r.number,
 							'type', r.type
 						)
-          )
-        ) FILTER (WHERE s.id IS NOT NULL),
-        '[]'
-      ) AS sessions
+					)
+				) FILTER (WHERE s.id IS NOT NULL), '[]'
+			) AS sessions
     FROM events e
     LEFT JOIN sessions s ON s.event_id = e.id
+    LEFT JOIN booked_seats bs ON bs.session_id = s.id
     LEFT JOIN rooms r ON s.room_id = r.id
-		LEFT JOIN cinemas c ON e.cinema_id = c.id
-		LEFT JOIN addresses a ON c.address_id = a.id
+    LEFT JOIN cinemas c ON e.cinema_id = c.id
+    LEFT JOIN addresses a ON c.address_id = a.id
     LEFT JOIN movies m ON e.movie_id = m.id
-		WHERE e.id=$1
-		GROUP BY e.id, c.id, a.id, m.id
+    WHERE e.id = $1
+    GROUP BY e.id, c.id, a.id, m.id
   `
 	err := s.db.Get(&event, query, id)
 
