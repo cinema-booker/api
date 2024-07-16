@@ -135,11 +135,10 @@ func (s *Store) VerifySeatsCount(sessionId int, seats []string) (int, error) {
 	}
 
 	query = s.db.Rebind(query)
-
 	var count int
 	err = s.db.Get(&count, query, args...)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return count, nil

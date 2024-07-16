@@ -2,9 +2,11 @@ package event
 
 import (
 	"context"
+	"database/sql"
+	goErrors "errors"
 	"time"
 
-	"github.com/cinema-booker/third_party/tmdb"
+	"github.com/cinema-booker/pkg/errors"
 )
 
 type EventService interface {
@@ -17,51 +19,135 @@ type EventService interface {
 }
 
 type Service struct {
-	store       EventStore
-	tmdbService *tmdb.TMDB
+	store EventStore
 }
 
-func NewService(store EventStore, tmdbService *tmdb.TMDB) *Service {
+func NewService(store EventStore) *Service {
 	return &Service{
-		store:       store,
-		tmdbService: tmdbService,
+		store: store,
 	}
 }
 
 func (s *Service) GetAll(ctx context.Context, pagination map[string]int) ([]EventBasic, error) {
-	return s.store.FindAll(pagination)
+	events, err := s.store.FindAll(pagination)
+	if err != nil {
+		return nil, errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	return events, nil
 }
 
 func (s *Service) Get(ctx context.Context, id int) (Event, error) {
-	return s.store.FindById(id)
+	event, err := s.store.FindById(id)
+	if err != nil {
+		if goErrors.Is(err, sql.ErrNoRows) {
+			return event, errors.CustomError{
+				Key: errors.NotFound,
+				Err: err,
+			}
+		}
+		return event, errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	return event, nil
 }
 
 func (s *Service) Create(ctx context.Context, input map[string]interface{}) error {
-	return s.store.Create(input)
+	err := s.store.Create(input)
+	if err != nil {
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	return nil
 }
 
 func (s *Service) Update(ctx context.Context, id int, input map[string]interface{}) error {
-	return s.store.Update(id, input)
+	_, err := s.store.FindById(id)
+	if err != nil {
+		if goErrors.Is(err, sql.ErrNoRows) {
+			return errors.CustomError{
+				Key: errors.NotFound,
+				Err: err,
+			}
+		}
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	err = s.store.Update(id, input)
+	if err != nil {
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	return nil
 }
 
 func (s *Service) Delete(ctx context.Context, id int) error {
 	_, err := s.store.FindById(id)
 	if err != nil {
-		return err
+		if goErrors.Is(err, sql.ErrNoRows) {
+			return errors.CustomError{
+				Key: errors.NotFound,
+				Err: err,
+			}
+		}
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
 	}
 
-	return s.store.Update(id, map[string]interface{}{
+	err = s.store.Update(id, map[string]interface{}{
 		"deleted_at": time.Now(),
 	})
+	if err != nil {
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	return nil
 }
 
 func (s *Service) Restore(ctx context.Context, id int) error {
 	_, err := s.store.FindById(id)
 	if err != nil {
-		return err
+		if goErrors.Is(err, sql.ErrNoRows) {
+			return errors.CustomError{
+				Key: errors.NotFound,
+				Err: err,
+			}
+		}
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
 	}
 
-	return s.store.Update(id, map[string]interface{}{
+	err = s.store.Update(id, map[string]interface{}{
 		"deleted_at": nil,
 	})
+	if err != nil {
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	return nil
 }

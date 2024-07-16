@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"database/sql"
 	"net/http"
 	"strconv"
 
@@ -46,16 +45,13 @@ func (h *EventHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 
 	events, err := h.service.GetAll(r.Context(), pagination)
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusOK, events); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -66,30 +62,21 @@ func (h *EventHandler) Get(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	event, err := h.service.Get(r.Context(), id)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return errors.HTTPError{
-				Code: http.StatusNotFound,
-				Err:  err,
-			}
-		}
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusOK, event); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -99,23 +86,20 @@ func (h *EventHandler) Get(w http.ResponseWriter, r *http.Request) error {
 func (h *EventHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	var input map[string]interface{}
 	if err := json.Parse(r, &input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	if err := h.service.Create(r.Context(), input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusCreated, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -126,31 +110,28 @@ func (h *EventHandler) Update(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	var input map[string]interface{}
 	if err := json.Parse(r, &input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	if err := h.service.Update(r.Context(), id, input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusAccepted, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -161,23 +142,20 @@ func (h *EventHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	if err := h.service.Delete(r.Context(), id); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusNoContent, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -188,23 +166,20 @@ func (h *EventHandler) Restore(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	if err := h.service.Restore(r.Context(), id); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusNoContent, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -215,31 +190,28 @@ func (h *EventHandler) CreateSession(w http.ResponseWriter, r *http.Request) err
 	vars := mux.Vars(r)
 	eventId, err := strconv.Atoi(vars["eventId"])
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	var input map[string]interface{}
 	if err := json.Parse(r, &input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	if err := h.sessionService.Create(r.Context(), eventId, input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusCreated, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -250,30 +222,27 @@ func (h *EventHandler) DeleteSession(w http.ResponseWriter, r *http.Request) err
 	vars := mux.Vars(r)
 	eventId, err := strconv.Atoi(vars["eventId"])
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 	sessionId, err := strconv.Atoi(vars["sessionId"])
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	if err := h.sessionService.Delete(r.Context(), eventId, sessionId); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusCreated, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 

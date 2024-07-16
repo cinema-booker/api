@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"database/sql"
 	"net/http"
 	"strconv"
 
@@ -38,16 +37,13 @@ func (h *BookinHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 
 	bookings, err := h.service.GetAll(r.Context(), pagination)
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusOK, bookings); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -58,30 +54,21 @@ func (h *BookinHandler) Get(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	booking, err := h.service.Get(r.Context(), id)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return errors.HTTPError{
-				Code: http.StatusNotFound,
-				Err:  err,
-			}
-		}
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusOK, booking); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -91,23 +78,20 @@ func (h *BookinHandler) Get(w http.ResponseWriter, r *http.Request) error {
 func (h *BookinHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	var input map[string]interface{}
 	if err := json.Parse(r, &input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	if err := h.service.Create(r.Context(), input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusCreated, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -118,23 +102,20 @@ func (h *BookinHandler) Cancel(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	if err := h.service.Cancel(r.Context(), id); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusNoContent, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 

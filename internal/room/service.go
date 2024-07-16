@@ -2,7 +2,11 @@ package room
 
 import (
 	"context"
+	"database/sql"
+	goErrors "errors"
 	"time"
+
+	"github.com/cinema-booker/pkg/errors"
 )
 
 type RoomService interface {
@@ -22,16 +26,41 @@ func NewService(store RoomStore) *Service {
 
 func (s *Service) Create(ctx context.Context, cinemaId int, input map[string]interface{}) error {
 	input["cinema_id"] = cinemaId
-	return s.store.Create(input)
+	err := s.store.Create(input)
+	if err != nil {
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	return nil
 }
 
 func (s *Service) Delete(ctx context.Context, cinemaId int, id int) error {
 	_, err := s.store.FindById(id)
 	if err != nil {
-		return err
+		if goErrors.Is(err, sql.ErrNoRows) {
+			return errors.CustomError{
+				Key: errors.NotFound,
+				Err: err,
+			}
+		}
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
 	}
 
-	return s.store.Update(id, map[string]interface{}{
+	err = s.store.Update(id, map[string]interface{}{
 		"deleted_at": time.Now(),
 	})
+	if err != nil {
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	return nil
 }

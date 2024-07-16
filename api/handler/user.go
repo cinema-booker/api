@@ -1,11 +1,8 @@
 package handler
 
 import (
-	"database/sql"
-	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/cinema-booker/api/middleware"
 	"github.com/cinema-booker/api/utils"
@@ -47,16 +44,13 @@ func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 
 	users, err := h.service.GetAll(r.Context(), pagination)
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusOK, users); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -67,30 +61,21 @@ func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	user, err := h.service.Get(r.Context(), id)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return errors.HTTPError{
-				Code: http.StatusNotFound,
-				Err:  err,
-			}
-		}
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusOK, user); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -100,23 +85,20 @@ func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) error {
 func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	var input map[string]interface{}
 	if err := json.Parse(r, &input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	if err := h.service.Create(r.Context(), input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusCreated, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -127,31 +109,28 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	var input map[string]interface{}
 	if err := json.Parse(r, &input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	if err := h.service.Update(r.Context(), id, input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusAccepted, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -162,23 +141,20 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	if err := h.service.Delete(r.Context(), id); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusNoContent, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -189,23 +165,20 @@ func (h *UserHandler) Restore(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	if err := h.service.Restore(r.Context(), id); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusNoContent, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -215,23 +188,20 @@ func (h *UserHandler) Restore(w http.ResponseWriter, r *http.Request) error {
 func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) error {
 	var input map[string]interface{}
 	if err := json.Parse(r, &input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	if err := h.service.SignUp(r.Context(), input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusCreated, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -241,24 +211,21 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) error {
 func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) error {
 	var input map[string]interface{}
 	if err := json.Parse(r, &input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	response, err := h.service.SignIn(r.Context(), input)
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusOK, response); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -268,24 +235,21 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) error {
 func (h *UserHandler) SendPasswordReset(w http.ResponseWriter, r *http.Request) error {
 	var input map[string]interface{}
 	if err := json.Parse(r, &input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	err := h.service.SendPasswordReset(r.Context(), input)
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusOK, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -295,24 +259,21 @@ func (h *UserHandler) SendPasswordReset(w http.ResponseWriter, r *http.Request) 
 func (h *UserHandler) ResetPassword(w http.ResponseWriter, r *http.Request) error {
 	var input map[string]interface{}
 	if err := json.Parse(r, &input); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
 	err := h.service.ResetPassword(r.Context(), input)
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusOK, nil); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
@@ -320,34 +281,15 @@ func (h *UserHandler) ResetPassword(w http.ResponseWriter, r *http.Request) erro
 }
 
 func (h *UserHandler) GetMe(w http.ResponseWriter, r *http.Request) error {
-	token := r.Header.Get("Authorization")
-	if token == "" {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  fmt.Errorf("missing token"),
-		}
-	}
-
-	tokenParts := strings.Split(token, " ")
-	if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
-		return errors.HTTPError{
-			Code: http.StatusBadRequest,
-			Err:  fmt.Errorf("invalid token format"),
-		}
-	}
-
 	response, err := h.service.GetMe(r.Context())
 	if err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
-		}
+		return err
 	}
 
 	if err := json.Write(w, http.StatusOK, response); err != nil {
-		return errors.HTTPError{
-			Code: http.StatusInternalServerError,
-			Err:  err,
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
 		}
 	}
 
