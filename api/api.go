@@ -61,8 +61,8 @@ func (s *APIServer) Start() error {
 
 	router.HandleFunc("/webhook", handler.HandleWebhook(bookingService)).Methods(http.MethodPost)
 
-	websocketHandler := handler.NewWebSocketHandler(userStore)
-	websocketHandler.RegisterRoutes(router)
+	websocketHandler := handler.NewWebSocketHandler()
+	router.HandleFunc("/ws", websocketHandler.HandleWebSocket).Methods(http.MethodGet)
 
 	log.Printf("🚀 Starting server on %s", s.address)
 	return http.ListenAndServe(s.address, router)

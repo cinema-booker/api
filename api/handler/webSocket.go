@@ -5,10 +5,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/cinema-booker/api/middleware"
 	"github.com/cinema-booker/internal/user"
-	"github.com/cinema-booker/pkg/errors"
-	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
@@ -22,31 +19,29 @@ var (
 	connMutex          sync.Mutex
 )
 
-func NewWebSocketHandler(userStore user.UserStore) *WebSocketHandler {
+func NewWebSocketHandler() *WebSocketHandler {
 	return &WebSocketHandler{
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
 			CheckOrigin: func(r *http.Request) bool {
-				return true // Adjust this to your security needs
+				return true
 			},
 		},
-		userStore: userStore,
 	}
 }
 
-func (h *WebSocketHandler) RegisterRoutes(mux *mux.Router) {
-	mux.Handle("/ws/{managerID}", errors.ErrorHandler(middleware.IsAuth(h.HandleWebSocket, h.userStore))).Methods(http.MethodGet)
-}
-
-func (h *WebSocketHandler) HandleWebSocket(w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)
-	managerID := vars["managerID"]
+func (h *WebSocketHandler) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
+	managerID := r.URL.Query().Get("managerID")
+	if managerID == "" {
+		http.Error(w, "Manager ID is required", http.StatusBadRequest)
+		return
+	}
 
 	conn, err := h.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		fmt.Println("Upgrade error:", err)
-		return err
+		return
 	}
 	defer conn.Close()
 
@@ -54,7 +49,7 @@ func (h *WebSocketHandler) HandleWebSocket(w http.ResponseWriter, r *http.Reques
 	managerConnections[managerID] = conn
 	connMutex.Unlock()
 
-	fmt.Printf("Manager %s connected\n", managerID)
+	fmt.Printf("Manager %s connected\n", managerID, managerConnections)
 
 	defer func() {
 		connMutex.Lock()
@@ -72,7 +67,6 @@ func (h *WebSocketHandler) HandleWebSocket(w http.ResponseWriter, r *http.Reques
 		fmt.Printf("Received from %s: %s\n", managerID, message)
 	}
 
-	return nil
 }
 
 func NotifyManager(managerID, message string) {
