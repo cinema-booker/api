@@ -10,7 +10,7 @@ import (
 	"github.com/stripe/stripe-go/v79/webhook"
 )
 
-const webhookSecret = ""
+const webhookSecret = "whsec_VNoJIPPJ2PsCaunGEDQ8bCAXB87VCkeA"
 
 func HandleWebhook(w http.ResponseWriter, r *http.Request) {
 	const MaxBodyBytes = int64(65536)
