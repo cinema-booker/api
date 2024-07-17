@@ -35,8 +35,6 @@ func (s *APIServer) Start() error {
 		w.Write([]byte("OK"))
 	}).Methods(http.MethodGet)
 
-	router.HandleFunc("/webhook", handler.HandleWebhook).Methods(http.MethodPost)
-
 	userStore := user.NewStore(s.db)
 	userService := user.NewService(userStore)
 	userHandler := handler.NewUserHandler(userService, userStore)
@@ -60,6 +58,11 @@ func (s *APIServer) Start() error {
 	bookingService := booking.NewService(bookingStore, sessionStore)
 	bookingHandler := handler.NewBookingHandler(bookingService, userStore)
 	bookingHandler.RegisterRoutes(router)
+
+	router.HandleFunc("/webhook", handler.HandleWebhook(bookingService)).Methods(http.MethodPost)
+
+	websocketHandler := handler.NewWebSocketHandler(userStore)
+	websocketHandler.RegisterRoutes(router)
 
 	log.Printf("🚀 Starting server on %s", s.address)
 	return http.ListenAndServe(s.address, router)

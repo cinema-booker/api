@@ -1,6 +1,7 @@
 package booking
 
 import (
+	"github.com/cinema-booker/internal/user"
 	"time"
 
 	"github.com/cinema-booker/internal/cinema"
@@ -33,4 +34,10 @@ type Booking struct {
 	Status  string           `json:"status" db:"status"`
 	User    User             `json:"user"`
 	Session SessionWithEvent `json:"session"`
+}
+
+type BookingWithUsers struct {
+	Booking     Booking        `json:"booking"`
+	BookingUser User           `json:"booking_user"`
+	CinemaUser  user.UserBasic `json:"cinema_user"`
 }

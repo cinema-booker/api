@@ -14,6 +14,7 @@ type BookingStore interface {
 	VerifySeatsCount(sessionId int, seats []string) (int, error)
 	Create(input map[string]interface{}) error
 	Update(id int, input map[string]interface{}) error
+	FindBookingWithUsersBySessionID(sessionID int) (BookingWithUsers, error)
 }
 
 type Store struct {
@@ -168,4 +169,40 @@ func (s *Store) Update(id int, input map[string]interface{}) error {
 	_, err := s.db.Exec(query, append(values, id)...)
 
 	return err
+}
+
+func (s *Store) FindBookingWithUsersBySessionID(sessionID int) (BookingWithUsers, error) {
+	query := `
+	SELECT 
+		b.id as booking_id, b.place, b.status, 
+		u.id as booking_user_id, u.name as booking_user_name,
+		cu.id as cinema_user_id, cu.name as cinema_user_name, cu.email as cinema_user_email, cu.role as cinema_user_role, cu.cinema_id as cinema_user_cinema_id
+	FROM 
+		bookings b
+	JOIN 
+		users u ON b.user_id = u.id
+	JOIN 
+		sessions s ON b.session_id = s.id
+	JOIN 
+		rooms r ON s.room_id = r.id
+	JOIN 
+		cinemas c ON r.cinema_id = c.id
+	JOIN 
+		users cu ON c.user_id = cu.id
+	WHERE 
+		b.session_id = ?
+	`
+
+	var result BookingWithUsers
+
+	err := s.db.QueryRow(query, sessionID).Scan(
+		&result.Booking.Id, &result.Booking.Place, &result.Booking.Status,
+		&result.BookingUser.Id, &result.BookingUser.Name,
+		&result.CinemaUser.Id, &result.CinemaUser.Name, &result.CinemaUser.Email, &result.CinemaUser.Role, &result.CinemaUser.CinemaId,
+	)
+	if err != nil {
+		return result, err
+	}
+
+	return result, nil
 }
