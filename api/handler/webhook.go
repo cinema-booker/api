@@ -60,12 +60,8 @@ func HandleWebhook(bookingService *booking.Service) http.HandlerFunc {
 				return
 			}
 
-			message := fmt.Sprintf("User %s reserved seats %v for film : %s", bookingWithUsers.BookingUser.Name, seatList, bookingWithUsers.Booking.Session.Event.Movie.Title)
+			message := fmt.Sprintf("User %s reserved %d seats: %v", bookingWithUsers.BookingUser.Name, len(seatList), seatList)
 			NotifyManager(strconv.Itoa(bookingWithUsers.CinemaUser.Id), message)
-
-			// TODO: Update booking status where `session_id` = `sessionId` and `place` in `seatList`
-			fmt.Printf("Session ID: %s\n", sessionId)
-			fmt.Printf("Seats: %v\n", seatList)
 
 		default:
 			fmt.Printf("Unhandled event type: %s\n", event.Type)
