@@ -74,6 +74,19 @@ func (s *APIServer) Start() error {
 	websocketHandler := handler.NewWebSocketHandler()
 	router.HandleFunc("/ws", websocketHandler.HandleWebSocket).Methods(http.MethodGet)
 
+	// Configure CORS
+	cors := handlers.CORS(
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedMethods([]string{
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodDelete,
+			http.MethodOptions,
+		}),
+		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
+	)
+
 	log.Printf("🚀 Starting server on %s", s.address)
-	return http.ListenAndServe(s.address, handlers.CORS()(router))
+	return http.ListenAndServe(s.address, cors(router))
 }
