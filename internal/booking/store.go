@@ -188,7 +188,7 @@ func (s *Store) Update(id int, input map[string]interface{}) error {
 func (s *Store) ConfirmBookingBySessionAndSeats(sessionID int, seats []string) (BookingWithUsers, error) {
 	queryUpdate := `
 	UPDATE bookings 
-	SET status = constants.BookingStatusConfirmed 
+	SET status = 'CONFIRMED'
 	WHERE session_id = ? AND place IN (?)
 	`
 	queryUpdate, argsUpdate, err := sqlx.In(queryUpdate, sessionID, seats)
