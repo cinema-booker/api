@@ -14,7 +14,7 @@ type BookingStore interface {
 	VerifySeatsCount(sessionId int, seats []string) (int, error)
 	Create(input map[string]interface{}) error
 	Update(id int, input map[string]interface{}) error
-	FindBookingWithUsersBySessionID(sessionID int) (BookingWithUsers, error)
+	ConfirmBookingBySessionAndSeats(sessionID int, seats []string) (BookingWithUsers, error)
 }
 
 type Store struct {
@@ -171,12 +171,29 @@ func (s *Store) Update(id int, input map[string]interface{}) error {
 	return err
 }
 
-func (s *Store) FindBookingWithUsersBySessionID(sessionID int) (BookingWithUsers, error) {
-	query := `
+func (s *Store) ConfirmBookingBySessionAndSeats(sessionID int, seats []string) (BookingWithUsers, error) {
+
+	queryUpdate := `
+	UPDATE bookings 
+	SET status = constants.BookingStatusConfirmed 
+	WHERE session_id = ? AND place IN (?)
+	`
+	queryUpdate, argsUpdate, err := sqlx.In(queryUpdate, sessionID, seats)
+	if err != nil {
+		return BookingWithUsers{}, err
+	}
+	queryUpdate = s.db.Rebind(queryUpdate)
+
+	_, err = s.db.Exec(queryUpdate, argsUpdate...)
+	if err != nil {
+		return BookingWithUsers{}, err
+	}
+
+	querySelect := `
 	SELECT 
 		b.id as booking_id, b.place, b.status, 
 		u.id as booking_user_id, u.name as booking_user_name,
-		cu.id as cinema_user_id, cu.name as cinema_user_name, cu.email as cinema_user_email, cu.role as cinema_user_role, cu.cinema_id as cinema_user_cinema_id
+		cu.id as cinema_user_id, cu.name as cinema_user_name, cu.email as cinema_user_email, cu.role as cinema_user_role 
 	FROM 
 		bookings b
 	JOIN 
@@ -190,15 +207,21 @@ func (s *Store) FindBookingWithUsersBySessionID(sessionID int) (BookingWithUsers
 	JOIN 
 		users cu ON c.user_id = cu.id
 	WHERE 
-		b.session_id = ?
+		b.session_id = ? AND b.place IN (?)
+	LIMIT 1
 	`
+	querySelect, argsSelect, err := sqlx.In(querySelect, sessionID, seats)
+	if err != nil {
+		return BookingWithUsers{}, err
+	}
+	querySelect = s.db.Rebind(querySelect)
 
 	var result BookingWithUsers
 
-	err := s.db.QueryRow(query, sessionID).Scan(
+	err = s.db.QueryRow(querySelect, argsSelect...).Scan(
 		&result.Booking.Id, &result.Booking.Place, &result.Booking.Status,
 		&result.BookingUser.Id, &result.BookingUser.Name,
-		&result.CinemaUser.Id, &result.CinemaUser.Name, &result.CinemaUser.Email, &result.CinemaUser.Role, &result.CinemaUser.CinemaId,
+		&result.CinemaUser.Id, &result.CinemaUser.Name, &result.CinemaUser.Email, &result.CinemaUser.Role,
 	)
 	if err != nil {
 		return result, err

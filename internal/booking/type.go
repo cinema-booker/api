@@ -39,5 +39,5 @@ type Booking struct {
 type BookingWithUsers struct {
 	Booking     Booking        `json:"booking"`
 	BookingUser User           `json:"booking_user"`
-	CinemaUser  user.UserBasic `json:"cinema_user"`
+	CinemaUser  user.UserBasic `json:"cinema_user"` // Updated type
 }

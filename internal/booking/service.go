@@ -15,7 +15,7 @@ type BookingService interface {
 	Get(ctx context.Context, id int) (Booking, error)
 	Create(ctx context.Context, input map[string]interface{}) (map[string]interface{}, error)
 	Cancel(ctx context.Context, id int) error
-	GetBookingWithUsersBySessionID(sessionID int) (BookingWithUsers, error)
+	GetBookingWithUsersBySessionID(sessionID int, seats []string) (BookingWithUsers, error)
 }
 
 type Service struct {
@@ -167,6 +167,6 @@ func (s *Service) Cancel(ctx context.Context, id int) error {
 	return nil
 }
 
-func (s *Service) GetBookingWithUsersBySessionID(sessionID int) (BookingWithUsers, error) {
-	return s.store.FindBookingWithUsersBySessionID(sessionID)
+func (s *Service) GetBookingWithUsersBySessionID(sessionID int, seats []string) (BookingWithUsers, error) {
+	return s.store.ConfirmBookingBySessionAndSeats(sessionID, seats)
 }

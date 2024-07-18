@@ -54,7 +54,7 @@ func HandleWebhook(bookingService *booking.Service) http.HandlerFunc {
 				fmt.Printf("Seats list: %v\n", seatList)
 			}
 
-			bookingWithUsers, err := bookingService.GetBookingWithUsersBySessionID(sessionId)
+			bookingWithUsers, err := bookingService.GetBookingWithUsersBySessionID(sessionId, seatList)
 			if err != nil {
 				http.Error(w, "Booking not found", http.StatusNotFound)
 				return
