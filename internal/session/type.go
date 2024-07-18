@@ -13,3 +13,14 @@ type Session struct {
 	DeletedAt *time.Time `json:"deleted_at" db:"deleted_at"`
 	Room      room.Room  `json:"room"`
 }
+
+type FlatDashboardResponse struct {
+	TotalBookings          int `json:"total_bookings"`
+	TotalCinemas           int `json:"total_cinemas"`
+	TotalRevenue           int `json:"total_revenue"`
+	TotalEvents            int `json:"total_events"`
+	TotalConfirmedBookings int `json:"total_confirmed_bookings"`
+	TotalPendingBookings   int `json:"total_pending_bookings"`
+	TotalManagers          int `json:"total_managers"`
+	TotalViewers           int `json:"total_viewers"`
+}

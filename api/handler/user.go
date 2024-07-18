@@ -1,6 +1,9 @@
 package handler
 
 import (
+	goErrors "errors"
+	"github.com/cinema-booker/internal/constants"
+	"github.com/cinema-booker/internal/session"
 	"net/http"
 	"strconv"
 
@@ -13,14 +16,16 @@ import (
 )
 
 type UserHandler struct {
-	service   user.UserService
-	userStore user.UserStore
+	service        user.UserService
+	userStore      user.UserStore
+	sessionService session.SessionService
 }
 
-func NewUserHandler(service user.UserService, userStore user.UserStore) *UserHandler {
+func NewUserHandler(service user.UserService, userStore user.UserStore, sessionService session.SessionService) *UserHandler {
 	return &UserHandler{
-		service:   service,
-		userStore: userStore,
+		service:        service,
+		userStore:      userStore,
+		sessionService: sessionService,
 	}
 }
 
@@ -32,7 +37,7 @@ func (h *UserHandler) RegisterRoutes(mux *mux.Router) {
 	mux.Handle("/users/{id}", errors.ErrorHandler(middleware.IsAuth(h.Delete, h.userStore))).Methods(http.MethodDelete)
 	mux.Handle("/users/{id}/restore", errors.ErrorHandler(middleware.IsAuth(h.Restore, h.userStore))).Methods(http.MethodPatch)
 	mux.Handle("/users/{id}/password", errors.ErrorHandler(middleware.IsAuth(h.EditPassword, h.userStore))).Methods(http.MethodPatch)
-
+	mux.Handle("/dashboard", errors.ErrorHandler(middleware.IsAuth(h.getDashboardForUser, h.userStore))).Methods(http.MethodGet)
 	mux.Handle("/sign-up", errors.ErrorHandler(h.SignUp)).Methods(http.MethodPost)
 	mux.Handle("/sign-in", errors.ErrorHandler(h.SignIn)).Methods(http.MethodPost)
 	mux.Handle("/send-password-reset", errors.ErrorHandler(h.SendPasswordReset)).Methods(http.MethodPost)
@@ -319,6 +324,45 @@ func (h *UserHandler) GetMe(w http.ResponseWriter, r *http.Request) error {
 	response, err := h.service.GetMe(r.Context())
 	if err != nil {
 		return err
+	}
+
+	if err := json.Write(w, http.StatusOK, response); err != nil {
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	return nil
+}
+
+func (h *UserHandler) getDashboardForUser(w http.ResponseWriter, r *http.Request) error {
+
+	ctx := r.Context()
+	userRole, ok := ctx.Value(constants.UserRoleKey).(string)
+	if !ok {
+		return errors.CustomError{
+			Key: errors.Unauthorized,
+			Err: goErrors.New("user role not found in context"),
+		}
+	}
+
+	if userRole != "ADMIN" {
+		if err := json.Write(w, http.StatusOK, struct{}{}); err != nil {
+			return errors.CustomError{
+				Key: errors.InternalServerError,
+				Err: err,
+			}
+		}
+		return nil
+	}
+
+	response, err := h.sessionService.GetDashboardData()
+	if err != nil {
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
 	}
 
 	if err := json.Write(w, http.StatusOK, response); err != nil {

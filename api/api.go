@@ -38,9 +38,12 @@ func (s *APIServer) Start() error {
 		w.Write([]byte("OK"))
 	}).Methods(http.MethodGet)
 
+	sessionStore := session.NewStore(s.db)
+	sessionService := session.NewService(sessionStore)
+
 	userStore := user.NewStore(s.db)
 	userService := user.NewService(userStore)
-	userHandler := handler.NewUserHandler(userService, userStore)
+	userHandler := handler.NewUserHandler(userService, userStore, sessionService)
 	userHandler.RegisterRoutes(router)
 
 	roomStore := room.NewStore(s.db)
@@ -50,8 +53,6 @@ func (s *APIServer) Start() error {
 	cinemaHandler := handler.NewCinemaHandler(cinemaService, roomService, userStore)
 	cinemaHandler.RegisterRoutes(router)
 
-	sessionStore := session.NewStore(s.db)
-	sessionService := session.NewService(sessionStore)
 	eventStore := event.NewStore(s.db)
 	eventService := event.NewService(eventStore)
 	eventHandler := handler.NewEventHandler(eventService, sessionService, userStore)

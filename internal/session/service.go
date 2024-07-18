@@ -12,6 +12,7 @@ import (
 type SessionService interface {
 	Create(ctx context.Context, eventId int, input map[string]interface{}) error
 	Delete(ctx context.Context, eventId int, id int) error
+	GetDashboardData() (FlatDashboardResponse, error)
 }
 
 type Service struct {
@@ -63,4 +64,8 @@ func (s *Service) Delete(ctx context.Context, eventId int, id int) error {
 	}
 
 	return nil
+}
+
+func (s *Service) GetDashboardData() (FlatDashboardResponse, error) {
+	return s.store.GetDashboardData()
 }

@@ -2,6 +2,7 @@ package session
 
 import (
 	"fmt"
+	"github.com/cinema-booker/pkg/errors"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -11,6 +12,7 @@ type SessionStore interface {
 	FindById(id int) (Session, error)
 	Create(input map[string]interface{}) error
 	Update(id int, input map[string]interface{}) error
+	GetDashboardData() (FlatDashboardResponse, error)
 }
 
 type Store struct {
@@ -62,4 +64,83 @@ func (s *Store) Update(id int, input map[string]interface{}) error {
 	_, err := s.db.Exec(query, append(values, id)...)
 
 	return err
+}
+
+func (s *Store) GetDashboardData() (FlatDashboardResponse, error) {
+	var response FlatDashboardResponse
+	var err error
+
+	// Total Bookings
+	err = s.db.Get(&response.TotalBookings, "SELECT COUNT(*) FROM bookings")
+	if err != nil {
+		return response, errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	// Total Cinemas
+	err = s.db.Get(&response.TotalCinemas, "SELECT COUNT(*) FROM cinemas")
+	if err != nil {
+		return response, errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	// Total Revenue
+	err = s.db.Get(&response.TotalRevenue, "SELECT SUM(price) FROM sessions")
+	if err != nil {
+		return response, errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	// Total Events
+	err = s.db.Get(&response.TotalEvents, "SELECT COUNT(*) FROM events")
+	if err != nil {
+		return response, errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	// Total Confirmed Bookings
+	err = s.db.Get(&response.TotalConfirmedBookings, "SELECT COUNT(*) FROM bookings WHERE status = 'CONFIRMED'")
+	if err != nil {
+		return response, errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	// Total Confirmed Bookings
+	err = s.db.Get(&response.TotalPendingBookings, "SELECT COUNT(*) FROM bookings WHERE status = 'PENDING'")
+	if err != nil {
+		return response, errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	// Total Managers
+	err = s.db.Get(&response.TotalManagers, "SELECT COUNT(*) FROM users WHERE role = 'MANAGER'")
+	if err != nil {
+		return response, errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	// Total Viewers
+	err = s.db.Get(&response.TotalViewers, "SELECT COUNT(*) FROM users WHERE role = 'VIEWER'")
+	if err != nil {
+		return response, errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	return response, nil
 }
