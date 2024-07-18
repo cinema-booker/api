@@ -11,9 +11,16 @@ require (
 	golang.org/x/crypto v0.23.0
 )
 
-require github.com/resend/resend-go/v2 v2.10.0
+require (
+	github.com/gorilla/websocket v1.5.3
+	github.com/resend/resend-go/v2 v2.10.0
+	github.com/stretchr/testify v1.8.2
+	github.com/stripe/stripe-go/v79 v79.3.0
+)
 
 require (
-	github.com/gorilla/websocket v1.5.3 // indirect
-	github.com/stripe/stripe-go/v79 v79.3.0 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

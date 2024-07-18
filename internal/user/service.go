@@ -29,6 +29,7 @@ type UserService interface {
 	SignIn(ctx context.Context, input map[string]interface{}) (map[string]interface{}, error)
 	SendPasswordReset(ctx context.Context, input map[string]interface{}) error
 	ResetPassword(ctx context.Context, input map[string]interface{}) error
+	EditPassword(ctx context.Context, id int, input map[string]interface{}) error
 	GetMe(ctx context.Context) (map[string]interface{}, error)
 }
 
@@ -330,6 +331,49 @@ func (s *Service) ResetPassword(ctx context.Context, input map[string]interface{
 		"password":        hashedPassword,
 		"code":            "",
 		"code_expires_at": nil,
+	})
+	if err != nil {
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	return nil
+}
+
+func (s *Service) EditPassword(ctx context.Context, id int, input map[string]interface{}) error {
+	user, err := s.store.FindById(id)
+	if err != nil {
+		if goErrors.Is(err, sql.ErrNoRows) {
+			return errors.CustomError{
+				Key: errors.NotFound,
+				Err: err,
+			}
+		}
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	if !hasher.Compare(user.Password, input["password"].(string)) {
+		return errors.CustomError{
+			Key: errors.InvalidCredentials,
+			Err: goErrors.New("invalid credentials"),
+		}
+	}
+
+	hashedPassword, err := hasher.Hash(input["new_password"].(string))
+	if err != nil {
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	err = s.store.Update(user.Id, map[string]interface{}{
+		"password": hashedPassword,
 	})
 	if err != nil {
 		return errors.CustomError{

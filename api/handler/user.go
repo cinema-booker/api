@@ -31,6 +31,7 @@ func (h *UserHandler) RegisterRoutes(mux *mux.Router) {
 	mux.Handle("/users/{id}", errors.ErrorHandler(middleware.IsAuth(h.Update, h.userStore))).Methods(http.MethodPatch)
 	mux.Handle("/users/{id}", errors.ErrorHandler(middleware.IsAuth(h.Delete, h.userStore))).Methods(http.MethodDelete)
 	mux.Handle("/users/{id}/restore", errors.ErrorHandler(middleware.IsAuth(h.Restore, h.userStore))).Methods(http.MethodPatch)
+	mux.Handle("/users/{id}/password", errors.ErrorHandler(middleware.IsAuth(h.EditPassword, h.userStore))).Methods(http.MethodPatch)
 
 	mux.Handle("/sign-up", errors.ErrorHandler(h.SignUp)).Methods(http.MethodPost)
 	mux.Handle("/sign-in", errors.ErrorHandler(h.SignIn)).Methods(http.MethodPost)
@@ -267,6 +268,39 @@ func (h *UserHandler) ResetPassword(w http.ResponseWriter, r *http.Request) erro
 	}
 
 	err := h.service.ResetPassword(r.Context(), input)
+	if err != nil {
+		return err
+	}
+
+	if err := json.Write(w, http.StatusOK, nil); err != nil {
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	return nil
+}
+
+func (h *UserHandler) EditPassword(w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	var input map[string]interface{}
+	if err := json.Parse(r, &input); err != nil {
+		return errors.CustomError{
+			Key: errors.InternalServerError,
+			Err: err,
+		}
+	}
+
+	err = h.service.EditPassword(r.Context(), id, input)
 	if err != nil {
 		return err
 	}
