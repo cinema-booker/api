@@ -1,6 +1,7 @@
 package api
 
 import (
+	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
 
@@ -58,6 +59,13 @@ func (s *APIServer) Start() error {
 	bookingService := booking.NewService(bookingStore, sessionStore)
 	bookingHandler := handler.NewBookingHandler(bookingService, userStore)
 	bookingHandler.RegisterRoutes(router)
+
+	router.PathPrefix("/docs/swagger.json").Handler(http.StripPrefix("/docs", http.FileServer(http.Dir("./docs"))))
+
+	router.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
+		//TODO Change URL before put it in prod
+		httpSwagger.URL("http://localhost:3000/docs/swagger.json"),
+	))
 
 	router.HandleFunc("/webhook", handler.HandleWebhook(bookingService)).Methods(http.MethodPost)
 

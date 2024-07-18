@@ -1,0 +1,1662 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "API for managing cinema seat bookings.",
+    "title": "Cinema Booking API",
+    "contact": {},
+    "version": "1.0"
+  },
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Operations related to authentication"
+    },
+    {
+      "name": "Users",
+      "description": "Operations related to users"
+    },
+    {
+      "name": "Cinemas",
+      "description": "Operations related to cinemas"
+    },
+    {
+      "name": "Rooms",
+      "description": "Operations related to rooms"
+    },
+    {
+      "name": "Events",
+      "description": "Operations related to events"
+    },
+    {
+      "name": "Sessions",
+      "description": "Operations related to sessions"
+    },
+    {
+      "name": "Bookings",
+      "description": "Operations related to bookings"
+    }
+  ],
+  "security": [
+    {
+      "Bearer": []
+    }
+  ],
+  "paths": {
+    "/bookings": {
+      "get": {
+        "tags": ["Bookings"],
+        "description": "Get a list of all bookings with pagination",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Get all bookings",
+        "operationId": "get-all-bookings",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Booking"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Bookings"],
+        "description": "Create a new booking",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Create booking",
+        "operationId": "create-booking",
+        "parameters": [
+          {
+            "name": "booking",
+            "in": "body",
+            "description": "Booking object that needs to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateBookingRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Booking created successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/bookings/{id}": {
+      "get": {
+        "tags": ["Bookings"],
+        "description": "Get details of a booking by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Get a booking",
+        "operationId": "get-booking",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Booking ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Booking"
+            }
+          },
+          "404": {
+            "description": "Booking not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Bookings"],
+        "description": "Cancel a booking by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Cancel booking",
+        "operationId": "cancel-booking",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Booking ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Booking canceled successfully"
+          },
+          "404": {
+            "description": "Booking not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": ["Users"],
+        "description": "Get a list of all users with pagination",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Get all users",
+        "operationId": "get-all-users",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Users"],
+        "description": "Create a new user",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Create user",
+        "operationId": "create-user",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "description": "User object that needs to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SignUpRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": ["Users"],
+        "description": "Get details of a user by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Get a user",
+        "operationId": "get-user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/UserBasic"
+            }
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Users"],
+        "description": "Update an existing user by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Update user",
+        "operationId": "update-user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "description": "User object that needs to be updated",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "description": "Delete a user by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Delete user",
+        "operationId": "delete-user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User deleted successfully"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/users/{id}/restore": {
+      "patch": {
+        "tags": ["Users"],
+        "description": "Restore a deleted user by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Restore user",
+        "operationId": "restore-user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User restored successfully"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/sign-up": {
+      "post": {
+        "tags": ["Auth"],
+        "description": "Sign up a new user",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Sign up user",
+        "operationId": "signup-user",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "description": "User object that needs to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SignUpRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "409": {
+            "description": "Email already exists"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": []
+      }
+    },
+    "/sign-in": {
+      "post": {
+        "tags": ["Auth"],
+        "description": "Sign in a user",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Sign in user",
+        "operationId": "signin-user",
+        "parameters": [
+          {
+            "name": "credentials",
+            "in": "body",
+            "description": "User credentials",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SignInRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sign in successful",
+            "schema": {
+              "$ref": "#/definitions/SignInResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": []
+      }
+    },
+    "/send-password-reset": {
+      "post": {
+        "tags": ["Auth"],
+        "description": "Send a password reset email",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Send password reset email",
+        "operationId": "send-password-reset",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "body",
+            "description": "User email for password reset",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SendPasswordResetRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password reset email sent successfully"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": []
+      }
+    },
+    "/reset-password": {
+      "post": {
+        "tags": ["Auth"],
+        "description": "Reset a user's password",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Reset password",
+        "operationId": "reset-password",
+        "parameters": [
+          {
+            "name": "resetPassword",
+            "in": "body",
+            "description": "Password reset information",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResetPasswordRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password reset successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "401": {
+            "description": "Invalid or expired reset code"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": []
+      }
+    },
+    "/me": {
+      "get": {
+        "tags": ["Auth"],
+        "description": "Get the authenticated user's information",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Get my information",
+        "operationId": "get-me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Authenticated user's information",
+            "schema": {
+              "$ref": "#/definitions/UserBasic"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/cinemas": {
+      "get": {
+        "tags": ["Cinemas"],
+        "description": "Get a list of all cinemas with pagination",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Get all cinemas",
+        "operationId": "get-all-cinemas",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Cinema"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Cinemas"],
+        "description": "Create a new cinema",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Create cinema",
+        "operationId": "create-cinema",
+        "parameters": [
+          {
+            "name": "cinema",
+            "in": "body",
+            "description": "Cinema object that needs to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCinemaRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Cinema created successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/cinemas/{id}": {
+      "get": {
+        "tags": ["Cinemas"],
+        "description": "Get details of a cinema by ID, including its rooms",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Get cinema details",
+        "operationId": "get-cinema",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Cinema ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CinemaWithRooms"
+            }
+          },
+          "404": {
+            "description": "Cinema not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Cinemas"],
+        "description": "Update an existing cinema by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Update cinema",
+        "operationId": "update-cinema",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Cinema ID",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "cinema",
+            "in": "body",
+            "description": "Cinema object that needs to be updated",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateCinemaRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cinema updated successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "404": {
+            "description": "Cinema not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Cinemas"],
+        "description": "Logically delete a cinema by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Delete cinema",
+        "operationId": "delete-cinema",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Cinema ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Cinema deleted successfully"
+          },
+          "404": {
+            "description": "Cinema not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/cinemas/{id}/restore": {
+      "patch": {
+        "tags": ["Cinemas"],
+        "description": "Restore a logically deleted cinema by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Restore cinema",
+        "operationId": "restore-cinema",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Cinema ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cinema restored successfully"
+          },
+          "404": {
+            "description": "Cinema not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/cinemas/{cinemaId}/rooms": {
+      "post": {
+        "tags": ["Rooms"],
+        "description": "Create a new room for a cinema",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Create room",
+        "operationId": "create-room",
+        "parameters": [
+          {
+            "name": "cinemaId",
+            "in": "path",
+            "description": "Cinema ID",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "room",
+            "in": "body",
+            "description": "Room object that needs to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateRoomRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Room created successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/cinemas/{cinemaId}/rooms/{roomId}": {
+      "delete": {
+        "tags": ["Rooms"],
+        "description": "Logically delete a room for a cinema by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Delete room",
+        "operationId": "delete-room",
+        "parameters": [
+          {
+            "name": "cinemaId",
+            "in": "path",
+            "description": "Cinema ID",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "roomId",
+            "in": "path",
+            "description": "Room ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Room deleted successfully"
+          },
+          "404": {
+            "description": "Room not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/events": {
+      "get": {
+        "tags": ["Events"],
+        "description": "Get a list of all events with pagination",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Get all events",
+        "operationId": "get-all-events",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/EventBasic"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Events"],
+        "description": "Create a new event",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Create event",
+        "operationId": "create-event",
+        "parameters": [
+          {
+            "name": "event",
+            "in": "body",
+            "description": "Event object that needs to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateEventRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Event created successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/events/{id}": {
+      "get": {
+        "tags": ["Events"],
+        "description": "Get details of an event by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Get event details",
+        "operationId": "get-event",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Event ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EventForEvent"
+            }
+          },
+          "404": {
+            "description": "Event not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Events"],
+        "description": "Logically delete an event by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Delete event",
+        "operationId": "delete-event",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Event ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Event deleted successfully"
+          },
+          "404": {
+            "description": "Event not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/events/{id}/restore": {
+      "patch": {
+        "tags": ["Events"],
+        "description": "Restore a logically deleted event by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Restore event",
+        "operationId": "restore-event",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Event ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event restored successfully"
+          },
+          "404": {
+            "description": "Event not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/events/{eventId}/sessions": {
+      "post": {
+        "tags": ["Sessions"],
+        "description": "Create a new session for an event",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Create session",
+        "operationId": "create-session",
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "description": "Event ID",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "session",
+            "in": "body",
+            "description": "Session object that needs to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateSessionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Session created successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/events/{eventId}/sessions/{sessionId}": {
+      "delete": {
+        "tags": ["Sessions"],
+        "description": "Logically delete a session for an event by ID",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "summary": "Delete session",
+        "operationId": "delete-session",
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "description": "Event ID",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "sessionId",
+            "in": "path",
+            "description": "Session ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Session deleted successfully"
+          },
+          "404": {
+            "description": "Session not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "Room": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "number": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "Event": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "price": {
+          "type": "integer"
+        },
+        "starts_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ends_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deleted_at": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "room": {
+          "$ref": "#/definitions/Room"
+        }
+      }
+    },
+    "UserBooking": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Booking": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "place": {
+          "type": "string"
+        },
+        "canceled_at": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "event": {
+          "$ref": "#/definitions/Event"
+        },
+        "user": {
+          "$ref": "#/definitions/UserBooking"
+        }
+      }
+    },
+    "CreateBookingRequest": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "integer",
+          "description": "ID of the session to book"
+        },
+        "seats": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of seat identifiers to book"
+        }
+      },
+      "required": ["session_id", "seats"]
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "code_expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "deleted_at": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        }
+      }
+    },
+    "UserBasic": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "cinema_id": {
+          "type": "integer",
+          "nullable": true
+        }
+      }
+    },
+    "CreateUserRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the user"
+        },
+        "email": {
+          "type": "string",
+          "description": "Email of the user"
+        },
+        "password": {
+          "type": "string",
+          "description": "Password of the user"
+        },
+        "role": {
+          "type": "string",
+          "description": "Role of the user"
+        },
+        "code": {
+          "type": "string",
+          "description": "Code for the user"
+        },
+        "code_expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Expiration time of the code",
+          "nullable": true
+        },
+        "deleted_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Deletion time of the user",
+          "nullable": true
+        }
+      },
+      "required": ["name", "email", "password", "role"]
+    },
+    "UpdateUserRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the user"
+        }
+      }
+    },
+    "SignInRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "User email"
+        },
+        "password": {
+          "type": "string",
+          "description": "User password"
+        }
+      },
+      "required": ["email", "password"]
+    },
+    "SignInResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "SignUpRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the user"
+        },
+        "email": {
+          "type": "string",
+          "description": "Email of the user"
+        },
+        "password": {
+          "type": "string",
+          "description": "Password of the user"
+        },
+        "role": {
+          "type": "string",
+          "description": "Role of the user"
+        }
+      },
+      "required": ["name", "email", "password", "role"]
+    },
+    "SendPasswordResetRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "Email of the user"
+        }
+      },
+      "required": ["email"]
+    },
+    "ResetPasswordRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "Email of the user"
+        },
+        "code": {
+          "type": "string",
+          "description": "Password reset code"
+        },
+        "password": {
+          "type": "string",
+          "description": "New password"
+        }
+      },
+      "required": ["email", "code", "password"]
+    },
+    "Address": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "float"
+        },
+        "latitude": {
+          "type": "number",
+          "format": "float"
+        }
+      }
+    },
+    "Cinema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "user_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "deleted_at": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "address": {
+          "$ref": "#/definitions/Address"
+        }
+      }
+    },
+    "CinemaWithRooms": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "deleted_at": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "rooms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Room"
+          }
+        }
+      }
+    },
+    "CreateCinemaRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the cinema"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the cinema"
+        },
+        "address_address": {
+          "type": "string",
+          "description": "Address of the cinema"
+        },
+        "address_longitude": {
+          "type": "number",
+          "format": "float",
+          "description": "Longitude of the cinema"
+        },
+        "address_latitude": {
+          "type": "number",
+          "format": "float",
+          "description": "Latitude of the cinema"
+        }
+      },
+      "required": ["name", "description", "address_address", "address_longitude", "address_latitude"]
+    },
+    "UpdateCinemaRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the cinema"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the cinema"
+        }
+      },
+      "required": ["name", "description"]
+    },
+    "CreateRoomRequest": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "string",
+          "description": "Room number"
+        },
+        "type": {
+          "type": "string",
+          "description": "Room type"
+        }
+      },
+      "required": ["number", "type"]
+    },
+    "Movie": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "poster": {
+          "type": "string"
+        },
+        "backdrop": {
+          "type": "string"
+        }
+      }
+    },
+    "SessionBasic": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "price": {
+          "type": "integer"
+        },
+        "starts_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "seats": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "room": {
+          "$ref": "#/definitions/Room"
+        }
+      }
+    },
+    "EventBasic": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "deleted_at": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "cinema": {
+          "$ref": "#/definitions/Cinema"
+        },
+        "movie": {
+          "$ref": "#/definitions/Movie"
+        }
+      }
+    },
+    "EventForEvent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "deleted_at": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "cinema": {
+          "$ref": "#/definitions/Cinema"
+        },
+        "movie": {
+          "$ref": "#/definitions/Movie"
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SessionBasic"
+          }
+        }
+      }
+    },
+    "CreateEventRequest": {
+      "type": "object",
+      "properties": {
+        "cinema_id": {
+          "type": "integer",
+          "description": "ID of the cinema"
+        },
+        "movie_title": {
+          "type": "string",
+          "description": "Title of the movie"
+        },
+        "movie_description": {
+          "type": "string",
+          "description": "Description of the movie"
+        },
+        "movie_language": {
+          "type": "string",
+          "description": "Language of the movie"
+        },
+        "movie_poster": {
+          "type": "string",
+          "description": "Poster of the movie"
+        },
+        "movie_backdrop": {
+          "type": "string",
+          "description": "Backdrop of the movie"
+        }
+      },
+      "required": ["cinema_id", "movie_title", "movie_description", "movie_language", "movie_poster", "movie_backdrop"]
+    },
+    "UpdateEventRequest": {
+      "type": "object",
+      "properties": {
+        "cinema_id": {
+          "type": "integer",
+          "description": "ID of the cinema"
+        },
+        "movie_id": {
+          "type": "integer",
+          "description": "ID of the movie"
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SessionBasic"
+          },
+          "description": "Array of session details"
+        }
+      },
+      "required": ["cinema_id", "movie_id", "sessions"]
+    },
+    "CreateSessionRequest": {
+      "type": "object",
+      "properties": {
+        "price": {
+          "type": "integer",
+          "description": "Price of the session"
+        },
+        "starts_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Start time of the session"
+        },
+        "room_id": {
+          "type": "integer",
+          "description": "ID of the room"
+        }
+      },
+      "required": ["price", "starts_at", "room_id"]
+    }
+  }
+}
