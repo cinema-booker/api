@@ -1,9 +1,10 @@
 package api
 
 import (
-	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/cinema-booker/api/handler"
 	"github.com/cinema-booker/internal/booking"
@@ -12,6 +13,7 @@ import (
 	"github.com/cinema-booker/internal/room"
 	"github.com/cinema-booker/internal/session"
 	"github.com/cinema-booker/internal/user"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 )
@@ -73,5 +75,5 @@ func (s *APIServer) Start() error {
 	router.HandleFunc("/ws", websocketHandler.HandleWebSocket).Methods(http.MethodGet)
 
 	log.Printf("🚀 Starting server on %s", s.address)
-	return http.ListenAndServe(s.address, router)
+	return http.ListenAndServe(s.address, handlers.CORS()(router))
 }
