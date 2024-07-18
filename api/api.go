@@ -88,6 +88,11 @@ func (s *APIServer) Start() error {
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
 
+	// Add OPTIONS handler for preflight requests
+	router.Methods(http.MethodOptions).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
 	log.Printf("🚀 Starting server on %s", s.address)
 	return http.ListenAndServe(s.address, cors(router))
 }
