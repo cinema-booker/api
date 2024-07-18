@@ -47,7 +47,6 @@ func (s *Store) FindAll(pagination map[string]int, search string) ([]Cinema, err
 			OR c.description ILIKE '%' || $1 || '%'
 		)
 		LIMIT $2 OFFSET $3
-		ORDER BY c.id DESC
   `
 	err := s.db.Select(&cinemas, query, search, pagination["limit"], offset)
 
@@ -80,6 +79,8 @@ func (s *Store) FindById(id int) (CinemaWithRooms, error) {
     LEFT JOIN rooms r ON c.id = r.cinema_id AND r.deleted_at IS NULL
 		WHERE c.deleted_at IS NULL
     AND c.id = $1 AND c.deleted_at IS NULL
+    GROUP BY c.id, a.id
+
   `
 	err := s.db.Get(&cinema, query, id)
 

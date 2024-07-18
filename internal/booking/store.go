@@ -80,7 +80,7 @@ func (s *Store) FindAll(userId int, userRole string, pagination map[string]int, 
 	if userRole == constants.UserRoleViewer {
 		query += fmt.Sprintf(" AND u.id = %d", userId)
 	}
-	query += " LIMIT $2 OFFSET $3 ORDER BY b.id DESC"
+	query += " LIMIT $2 OFFSET $3"
 
 	err := s.db.Select(&bookings, query, search, pagination["limit"], offset)
 
