@@ -51,7 +51,8 @@ func (s *Store) FindAll(pagination map[string]int, search string) ([]EventBasic,
     LEFT JOIN cinemas c ON e.cinema_id = c.id
     LEFT JOIN addresses a ON c.address_id = a.id
     LEFT JOIN movies m ON e.movie_id = m.id
-		WHERE (
+		WHERE e.deleted_at IS NULL
+		AND (
 			c.name ILIKE '%' || $1 || '%'
 			OR m.title ILIKE '%' || $1 || '%'
 		)
@@ -108,13 +109,14 @@ func (s *Store) FindById(id int) (Event, error) {
 				) FILTER (WHERE s.id IS NOT NULL), '[]'
 			) AS sessions
     FROM events e
-    LEFT JOIN sessions s ON s.event_id = e.id
+    LEFT JOIN sessions s ON s.event_id = e.id AND s.deleted_at IS NULL
     LEFT JOIN booked_seats bs ON bs.session_id = s.id
     LEFT JOIN rooms r ON s.room_id = r.id
     LEFT JOIN cinemas c ON e.cinema_id = c.id
     LEFT JOIN addresses a ON c.address_id = a.id
     LEFT JOIN movies m ON e.movie_id = m.id
-    WHERE e.id = $1
+		WHERE e.deleted_at IS NULL
+    AND e.id = $1
     GROUP BY e.id, c.id, a.id, m.id
   `
 	err := s.db.Get(&event, query, id)

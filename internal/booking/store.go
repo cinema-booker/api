@@ -9,8 +9,8 @@ import (
 )
 
 type BookingStore interface {
-	FindAll(pagination map[string]int, search string) ([]Booking, error)
-	FindById(id int) (Booking, error)
+	FindAll(userId int, userRole string, pagination map[string]int, search string) ([]Booking, error)
+	FindById(userId int, userRole string, id int) (Booking, error)
 	VerifySeatsCount(sessionId int, seats []string) (int, error)
 	Create(input map[string]interface{}) error
 	Update(id int, input map[string]interface{}) error
@@ -27,7 +27,7 @@ func NewStore(db *sqlx.DB) *Store {
 	}
 }
 
-func (s *Store) FindAll(pagination map[string]int, search string) ([]Booking, error) {
+func (s *Store) FindAll(userId int, userRole string, pagination map[string]int, search string) ([]Booking, error) {
 	bookings := []Booking{}
 
 	offset := (pagination["page"] - 1) * pagination["limit"]
@@ -73,14 +73,21 @@ func (s *Store) FindAll(pagination map[string]int, search string) ([]Booking, er
 			OR c.name ILIKE '%' || $1 || '%'
 			OR m.title ILIKE '%' || $1 || '%'
 		)
-		LIMIT $2 OFFSET $3
 	`
+	if userRole == constants.UserRoleManager {
+		query += fmt.Sprintf(" AND c.user_id = %d", userId)
+	}
+	if userRole == constants.UserRoleViewer {
+		query += fmt.Sprintf(" AND u.id = %d", userId)
+	}
+	query += " LIMIT $2 OFFSET $3 ORDER BY b.id DESC"
+
 	err := s.db.Select(&bookings, query, search, pagination["limit"], offset)
 
 	return bookings, err
 }
 
-func (s *Store) FindById(id int) (Booking, error) {
+func (s *Store) FindById(userId int, userRole string, id int) (Booking, error) {
 	booking := Booking{}
 	query := `
 		SELECT 
@@ -121,6 +128,13 @@ func (s *Store) FindById(id int) (Booking, error) {
     LEFT JOIN addresses a ON c.address_id = a.id
 		WHERE b.id=$1
 	`
+	if userRole == constants.UserRoleManager {
+		query += fmt.Sprintf(" AND c.user_id = %d", userId)
+	}
+	if userRole == constants.UserRoleViewer {
+		query += fmt.Sprintf(" AND u.id = %d", userId)
+	}
+
 	err := s.db.Get(&booking, query, id)
 
 	return booking, err
@@ -172,7 +186,6 @@ func (s *Store) Update(id int, input map[string]interface{}) error {
 }
 
 func (s *Store) ConfirmBookingBySessionAndSeats(sessionID int, seats []string) (BookingWithUsers, error) {
-
 	queryUpdate := `
 	UPDATE bookings 
 	SET status = constants.BookingStatusConfirmed 

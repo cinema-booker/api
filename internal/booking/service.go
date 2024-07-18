@@ -31,7 +31,22 @@ func NewService(store BookingStore, sessionStore session.SessionStore) *Service 
 }
 
 func (s *Service) GetAll(ctx context.Context, pagination map[string]int, search string) ([]Booking, error) {
-	bookings, err := s.store.FindAll(pagination, search)
+	userId, ok := ctx.Value(constants.UserIDKey).(int)
+	if !ok {
+		return nil, errors.CustomError{
+			Key: errors.Unauthorized,
+			Err: goErrors.New("user id not authenticated"),
+		}
+	}
+	userRole, ok := ctx.Value(constants.UserRoleKey).(string)
+	if !ok {
+		return nil, errors.CustomError{
+			Key: errors.Unauthorized,
+			Err: goErrors.New("user id not authenticated"),
+		}
+	}
+
+	bookings, err := s.store.FindAll(userId, userRole, pagination, search)
 	if err != nil {
 		return nil, errors.CustomError{
 			Key: errors.InternalServerError,
@@ -43,7 +58,22 @@ func (s *Service) GetAll(ctx context.Context, pagination map[string]int, search 
 }
 
 func (s *Service) Get(ctx context.Context, id int) (Booking, error) {
-	booking, err := s.store.FindById(id)
+	userId, ok := ctx.Value(constants.UserIDKey).(int)
+	if !ok {
+		return Booking{}, errors.CustomError{
+			Key: errors.Unauthorized,
+			Err: goErrors.New("user id not authenticated"),
+		}
+	}
+	userRole, ok := ctx.Value(constants.UserRoleKey).(string)
+	if !ok {
+		return Booking{}, errors.CustomError{
+			Key: errors.Unauthorized,
+			Err: goErrors.New("user id not authenticated"),
+		}
+	}
+
+	booking, err := s.store.FindById(userId, userRole, id)
 	if err != nil {
 		if goErrors.Is(err, sql.ErrNoRows) {
 			return booking, errors.CustomError{
@@ -140,7 +170,22 @@ func (s *Service) Create(ctx context.Context, input map[string]interface{}) (map
 }
 
 func (s *Service) Cancel(ctx context.Context, id int) error {
-	_, err := s.store.FindById(id)
+	userId, ok := ctx.Value(constants.UserIDKey).(int)
+	if !ok {
+		return errors.CustomError{
+			Key: errors.Unauthorized,
+			Err: goErrors.New("user id not authenticated"),
+		}
+	}
+	userRole, ok := ctx.Value(constants.UserRoleKey).(string)
+	if !ok {
+		return errors.CustomError{
+			Key: errors.Unauthorized,
+			Err: goErrors.New("user id not authenticated"),
+		}
+	}
+
+	_, err := s.store.FindById(userId, userRole, id)
 	if err != nil {
 		if goErrors.Is(err, sql.ErrNoRows) {
 			return errors.CustomError{
