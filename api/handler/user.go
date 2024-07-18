@@ -2,10 +2,11 @@ package handler
 
 import (
 	goErrors "errors"
-	"github.com/cinema-booker/internal/constants"
-	"github.com/cinema-booker/internal/session"
 	"net/http"
 	"strconv"
+
+	"github.com/cinema-booker/internal/constants"
+	"github.com/cinema-booker/internal/session"
 
 	"github.com/cinema-booker/api/middleware"
 	"github.com/cinema-booker/api/utils"
@@ -95,6 +96,20 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return errors.CustomError{
 			Key: errors.InternalServerError,
 			Err: err,
+		}
+	}
+
+	role, ok := input["role"].(string)
+	if !ok {
+		return errors.CustomError{
+			Key: errors.BadRequest,
+			Err: goErrors.New("role is required"),
+		}
+	}
+	if role == constants.UserRoleAdmin {
+		return errors.CustomError{
+			Key: errors.BadRequest,
+			Err: goErrors.New("role must be either ADMIN or USER"),
 		}
 	}
 
