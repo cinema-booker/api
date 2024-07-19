@@ -11,7 +11,13 @@
   </p>
 </div>
 
+## Features :
 
+- Complete login system
+- Cinema creation
+- Role management (security)
+- Real-time management of sending notifications to the cinema manager in case of reservation
+- Payment management for seats via Stripe
 
 ## .env :
 
